@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
       let found = false;
 
       // Mostrar el Abstract principal si existe
-      if (data.AbstractText) {
+      if (data.Heading && data.AbstractText) {
         const div = document.createElement("div");
         div.className = "result-item";
         div.innerHTML = `
@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       // Mostrar RelatedTopics
-      if (data.RelatedTopics) {
+      if (data.RelatedTopics && data.RelatedTopics.length > 0) {
         data.RelatedTopics.forEach(item => {
           if (item.Text && item.FirstURL) {
             const div = document.createElement("div");
