@@ -5,11 +5,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    resultsDiv.textContent = "Buscando...";
+    resultsDiv.innerHTML = "<p>Buscando...</p>";
 
     const query = input.value.trim();
     if (!query) {
-      resultsDiv.textContent = "Por favor ingresa un término.";
+      resultsDiv.innerHTML = "<p>Por favor ingresa un término.</p>";
       return;
     }
 
@@ -19,10 +19,10 @@ document.addEventListener("DOMContentLoaded", () => {
       );
       const data = await response.json();
 
-      // Mostrar el JSON crudo incrustado
-      resultsDiv.textContent = JSON.stringify(data, null, 2);
+      // Mostrar el JSON crudo con formato
+      resultsDiv.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
     } catch (error) {
-      resultsDiv.textContent = `Error al buscar: ${error.message}`;
+      resultsDiv.innerHTML = `<p>Error al buscar: ${error.message}</p>`;
     }
   });
 });
