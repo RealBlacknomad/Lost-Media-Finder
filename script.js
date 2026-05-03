@@ -1,33 +1,21 @@
-const form = document.getElementById('searchForm');
-const resultsDiv = document.getElementById('results');
-
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  resultsDiv.innerHTML = "<p>Buscando...</p>";
-  const query = document.getElementById('query').value;
-
+async function searchMedia(query) {
   try {
-    const response = await fetch("https://lost-media-finder.onrender.com/search?q=" + encodeURIComponent(query));
-    if (!response.ok) {
-      throw new Error("Respuesta no válida del servidor");
-    }
+    const response = await fetch(
+      "https://lost-media-finder-production.up.railway.app/search?q=" + encodeURIComponent(query)
+    );
     const data = await response.json();
 
-    console.log("Respuesta del backend:", data); // Depuración
+    const resultsContainer = document.getElementById("results");
+    resultsContainer.innerHTML = "";
 
-    resultsDiv.innerHTML = "";
     if (data.results && data.results.length > 0) {
-      data.results.forEach(r => {
-        const div = document.createElement('div');
-        div.className = "result";
-        div.innerHTML = `<a href="${r.url}" target="_blank">${r.title}</a><p>${r.snippet}</p>`;
-        resultsDiv.appendChild(div);
-      });
-    } else {
-      resultsDiv.innerHTML = "<p>No se encontraron resultados.</p>";
-    }
-  } catch (err) {
-    resultsDiv.innerHTML = "<p>Error al buscar. Intenta de nuevo.</p>";
-    console.error("Error en la búsqueda:", err);
-  }
-});
+      data.results.forEach(result => {
+        const item = document.createElement("div");
+        item.classList.add("result-item");
+
+        const title = document.createElement("h3");
+        title.textContent = result.title;
+
+        const link = document.createElement("a");
+        link.href = result.url;
+        link.textContent = result
