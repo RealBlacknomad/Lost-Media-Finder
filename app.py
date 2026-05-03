@@ -6,10 +6,6 @@ import requests
 app = Flask(__name__)
 CORS(app)
 
-# Obtén tu clave de Bing Web Search API desde Azure Portal
-BING_API_KEY = os.environ.get("BING_API_KEY")
-BING_ENDPOINT = "https://api.bing.microsoft.com/v7.0/search"
-
 @app.route("/")
 def home():
     return jsonify({"mensaje": "API Lost Media Finder activa"})
@@ -21,23 +17,32 @@ def search():
         return jsonify({"results": []})
 
     try:
-        headers = {"Ocp-Apim-Subscription-Key": BING_API_KEY}
-        params = {"q": query, "count": 10, "mkt": "es-ES"}
-        response = requests.get(BING_ENDPOINT, headers=headers, params=params, timeout=10)
+        # Endpoint público de DuckDuckGo (no oficial)
+        url = "https://api.duckduckgo.com/"
+        params = {
+            "q": query,
+            "format": "json",
+            "no_redirect": 1,
+            "no_html": 1
+        }
+        response = requests.get(url, params=params, timeout=10)
         data = response.json()
 
-        # Bing devuelve resultados en 'webPages' → 'value'
-        raw_results = data.get("webPages", {}).get("value", [])
+        raw_results = []
+
+        # DuckDuckGo devuelve 'RelatedTopics' como lista de resultados
+        for item in data.get("RelatedTopics", []):
+            if "Text" in item and "FirstURL" in item:
+                raw_results.append({
+                    "title": item.get("Text", "Sin título"),
+                    "url": item.get("FirstURL", ""),
+                    "snippet": item.get("Text", "")
+                })
 
         # Filtrar IMDb, Netflix y Wikipedia
         filtered = [
-            {
-                "title": r.get("name", "Sin título"),
-                "url": r.get("url", ""),
-                "snippet": r.get("snippet", "")
-            }
-            for r in raw_results
-            if not any(site in r.get("url", "") for site in ["imdb.com", "netflix.com", "wikipedia.org"])
+            r for r in raw_results
+            if not any(site in r["url"] for site in ["imdb.com", "netflix.com", "wikipedia.org"])
         ]
 
         return jsonify({"results": filtered})
