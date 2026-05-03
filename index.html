@@ -6,14 +6,18 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Lost Media Finder</h1>
-  <p>Buscador especializado en películas y videos flash antiguos</p>
-  
+  <h1>Buscador de Lost Media</h1>
+
   <form id="searchForm">
-    <input type="text" id="query" placeholder="Escribe tu búsqueda...">
+    <input 
+      type="text" 
+      id="searchInput" 
+      placeholder="Escribe tu búsqueda..." 
+      required
+    >
     <button type="submit">Buscar</button>
   </form>
-  
+
   <div id="results"></div>
 
   <script src="script.js"></script>
