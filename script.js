@@ -21,32 +21,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
       resultsDiv.innerHTML = "";
 
+      let found = false;
+
+      function renderItem(text, url) {
+        const div = document.createElement("div");
+        div.className = "result-item";
+        div.innerHTML = `
+          <h3><a href="${url}" target="_blank">${text}</a></h3>
+          <p>${text}</p>
+        `;
+        resultsDiv.appendChild(div);
+      }
+
       if (data.RelatedTopics && data.RelatedTopics.length > 0) {
         data.RelatedTopics.forEach(item => {
           if (item.Text && item.FirstURL) {
-            const div = document.createElement("div");
-            div.className = "result-item";
-            div.innerHTML = `
-              <h3><a href="${item.FirstURL}" target="_blank">${item.Text}</a></h3>
-              <p>${item.Text}</p>
-            `;
-            resultsDiv.appendChild(div);
+            renderItem(item.Text, item.FirstURL);
+            found = true;
           }
           if (item.Topics) {
             item.Topics.forEach(sub => {
               if (sub.Text && sub.FirstURL) {
-                const div = document.createElement("div");
-                div.className = "result-item";
-                div.innerHTML = `
-                  <h3><a href="${sub.FirstURL}" target="_blank">${sub.Text}</a></h3>
-                  <p>${sub.Text}</p>
-                `;
-                resultsDiv.appendChild(div);
+                renderItem(sub.Text, sub.FirstURL);
+                found = true;
               }
             });
           }
         });
-      } else {
+      }
+
+      if (!found) {
         resultsDiv.innerHTML = "<p>No se encontraron resultados.</p>";
       }
     } catch (error) {
