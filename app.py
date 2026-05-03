@@ -1,56 +1,41 @@
-import os
-import requests
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("search-form");
+  const input = document.getElementById("search-input");
+  const resultsDiv = document.getElementById("results");
 
-app = Flask(__name__)
-CORS(app)
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    resultsDiv.innerHTML = "<p>Buscando...</p>";
 
-@app.route("/")
-def home():
-    return jsonify({"message": "API Lost Media Finder activa"})
+    const query = input.value.trim();
+    if (!query) {
+      resultsDiv.innerHTML = "<p>Por favor ingresa un término.</p>";
+      return;
+    }
 
-@app.route("/search")
-def search():
-    query = request.args.get("q")
-    if not query:
-        return jsonify({"results": []})
+    try {
+      const response = await fetch(
+        `https://lost-media-finder-production.up.railway.app/search?q=${encodeURIComponent(query)}`
+      );
+      const data = await response.json();
 
-    # Consulta a DuckDuckGo API
-    url = f"https://api.duckduckgo.com/?q={query}&format=json"
-    try:
-        r = requests.get(url, timeout=10)
-        data = r.json()
-    except Exception as e:
-        return jsonify({"results": [], "error": str(e)})
+      resultsDiv.innerHTML = "";
 
-    results = []
-    for item in data.get("RelatedTopics", []):
-        # Algunos items son sublistas, hay que revisar
-        if isinstance(item, dict):
-            if "Text" in item and "FirstURL" in item:
-                # Filtrar IMDb, Wikipedia, Netflix
-                if any(domain in item["FirstURL"] for domain in ["imdb.com", "wikipedia.org", "netflix.com"]):
-                    continue
-                results.append({
-                    "title": item["Text"],
-                    "url": item["FirstURL"],
-                    "snippet": item["Text"]
-                })
-            # Si hay subtopics
-            if "Topics" in item:
-                for sub in item["Topics"]:
-                    if "Text" in sub and "FirstURL" in sub:
-                        if any(domain in sub["FirstURL"] for domain in ["imdb.com", "wikipedia.org", "netflix.com"]):
-                            continue
-                        results.append({
-                            "title": sub["Text"],
-                            "url": sub["FirstURL"],
-                            "snippet": sub["Text"]
-                        })
-
-    return jsonify({"results": results})
-
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
+      if (data.results && data.results.length > 0) {
+        data.results.forEach((item) => {
+          const div = document.createElement("div");
+          div.className = "result-item";
+          div.innerHTML = `
+            <h3><a href="${item.url}" target="_blank">${item.title}</a></h3>
+            <p>${item.snippet}</p>
+          `;
+          resultsDiv.appendChild(div);
+        });
+      } else {
+        resultsDiv.innerHTML = "<p>No se encontraron resultados.</p>";
+      }
+    } catch (error) {
+      resultsDiv.innerHTML = `<p>Error al buscar: ${error.message}</p>`;
+    }
+  });
+});
