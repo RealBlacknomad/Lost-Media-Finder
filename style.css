@@ -1,10 +1,24 @@
-#results pre {
+#results {
   background: #1e1e1e;
   color: #dcdcdc;
   padding: 15px;
   border-radius: 8px;
-  font-family: monospace;
-  white-space: pre-wrap;
-  overflow-x: auto;
   max-height: 600px;
+  overflow-y: auto;
+}
+
+.result-item {
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #444;
+}
+
+.result-item h2, .result-item h3 {
+  color: #ffcc00;
+  margin: 0 0 5px;
+}
+
+.result-item a {
+  color: #66b3ff;
+  text-decoration: none;
 }
