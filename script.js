@@ -33,12 +33,14 @@ document.addEventListener("DOMContentLoaded", () => {
         resultsDiv.appendChild(div);
       }
 
+      // Recorrer RelatedTopics
       if (data.RelatedTopics && data.RelatedTopics.length > 0) {
         data.RelatedTopics.forEach(item => {
           if (item.Text && item.FirstURL) {
             renderItem(item.Text, item.FirstURL);
             found = true;
           }
+          // Recorrer subtopics
           if (item.Topics) {
             item.Topics.forEach(sub => {
               if (sub.Text && sub.FirstURL) {
