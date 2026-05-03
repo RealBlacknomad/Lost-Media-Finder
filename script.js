@@ -13,6 +13,8 @@ form.addEventListener('submit', async (e) => {
     }
     const data = await response.json();
 
+    console.log("Respuesta del backend:", data); // Depuración
+
     resultsDiv.innerHTML = "";
     if (data.results && data.results.length > 0) {
       data.results.forEach(r => {
