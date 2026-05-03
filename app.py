@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
+import requests
 
 app = Flask(__name__)
 CORS(app)  # habilita CORS para todas las rutas
@@ -12,18 +13,33 @@ def home():
 @app.route("/search")
 def search():
     query = request.args.get("q", "")
+    if not query:
+        return jsonify({"results": []})
 
-    # Resultados simulados (mock). En el paso 2 conectaremos un motor real.
-    raw_results = [
-        {"title": "Película perdida en foro", "url": "https://foros.com/pelicula", "snippet": "Discusión sobre película perdida"},
-        {"title": "IMDb ficha", "url": "https://imdb.com/title/xyz", "snippet": "Ficha oficial"},
-        {"title": "Wikipedia artículo", "url": "https://es.wikipedia.org/wiki/xyz", "snippet": "Artículo enciclopédico"}
-    ]
+    try:
+        # Llamada al motor externo Marginalia Search
+        url = f"https://search.marginalia.nu/search?query={query}&format=json"
+        response = requests.get(url, timeout=10)
+        data = response.json()
 
-    # Filtrar IMDb, Netflix y Wikipedia
-    filtered = [r for r in raw_results if not any(site in r["url"] for site in ["imdb.com", "netflix.com", "wikipedia.org"])]
+        # Marginalia devuelve resultados en 'results'
+        raw_results = data.get("results", [])
 
-    return jsonify({"results": filtered})
+        # Filtrar IMDb, Netflix y Wikipedia
+        filtered = [
+            {
+                "title": r.get("title", "Sin título"),
+                "url": r.get("url", ""),
+                "snippet": r.get("description", "")
+            }
+            for r in raw_results
+            if not any(site in r.get("url", "") for site in ["imdb.com", "netflix.com", "wikipedia.org"])
+        ]
+
+        return jsonify({"results": filtered})
+
+    except Exception as e:
+        return jsonify({"error": str(e), "results": []})
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
