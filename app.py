@@ -4,7 +4,11 @@ import os
 import requests
 
 app = Flask(__name__)
-CORS(app)  # habilita CORS para todas las rutas
+CORS(app)
+
+# Obtén tu clave de Bing Web Search API desde Azure Portal
+BING_API_KEY = os.environ.get("BING_API_KEY")
+BING_ENDPOINT = "https://api.bing.microsoft.com/v7.0/search"
 
 @app.route("/")
 def home():
@@ -17,20 +21,20 @@ def search():
         return jsonify({"results": []})
 
     try:
-        # Llamada al motor externo Marginalia Search
-        url = f"https://search.marginalia.nu/search?query={query}&format=json"
-        response = requests.get(url, timeout=10)
+        headers = {"Ocp-Apim-Subscription-Key": BING_API_KEY}
+        params = {"q": query, "count": 10, "mkt": "es-ES"}
+        response = requests.get(BING_ENDPOINT, headers=headers, params=params, timeout=10)
         data = response.json()
 
-        # Marginalia devuelve resultados en 'results'
-        raw_results = data.get("results", [])
+        # Bing devuelve resultados en 'webPages' → 'value'
+        raw_results = data.get("webPages", {}).get("value", [])
 
         # Filtrar IMDb, Netflix y Wikipedia
         filtered = [
             {
-                "title": r.get("title", "Sin título"),
+                "title": r.get("name", "Sin título"),
                 "url": r.get("url", ""),
-                "snippet": r.get("description", "")
+                "snippet": r.get("snippet", "")
             }
             for r in raw_results
             if not any(site in r.get("url", "") for site in ["imdb.com", "netflix.com", "wikipedia.org"])
