@@ -1,24 +1,28 @@
 #results {
-  background: #1e1e1e;
-  color: #dcdcdc;
-  padding: 15px;
-  border-radius: 8px;
-  max-height: 600px;
-  overflow-y: auto;
+  max-width: 700px;
+  margin: 20px auto;
+  font-family: Arial, sans-serif;
 }
 
 .result-item {
-  margin-bottom: 20px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #444;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
 }
 
-.result-item h2, .result-item h3 {
-  color: #ffcc00;
+.result-item h2 {
+  font-size: 20px;
   margin: 0 0 5px;
+  color: #1a0dab;
 }
 
-.result-item a {
-  color: #66b3ff;
+.result-item h3 a {
+  font-size: 16px;
+  color: #1a0dab;
   text-decoration: none;
+}
+
+.result-item p {
+  font-size: 14px;
+  color: #4d5156;
+  margin: 0;
 }
