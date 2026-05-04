@@ -69,7 +69,10 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
     } catch (error) {
-      resultsDiv.innerHTML = `<p>Error: ${error.message}</p>`;
-    }
+  resultsDiv.innerHTML = `
+    <p>Error al buscar.</p>
+    <p style="color:gray;">(Puede ser el proxy, intenta otra vez)</p>
+  `;
+}
   });
 });
