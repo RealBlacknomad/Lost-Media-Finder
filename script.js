@@ -33,14 +33,15 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        resultDiv.innerHTML = "⏳ Buscando (puede tardar si Render está dormido)...";
+        resultDiv.innerHTML = "⏳ Buscando...";
 
         let finalQuery = query;
 
         if (searchType === "movies") finalQuery += " pelicula";
         if (searchType === "series") finalQuery += " serie";
 
-        if (document.getElementById("deepMode").checked) {
+        const deepMode = document.getElementById("deepMode");
+        if (deepMode && deepMode.checked) {
             finalQuery += " (lost media OR rare OR obscure)";
         }
 
