@@ -41,37 +41,13 @@ document.addEventListener("DOMContentLoaded", () => {
         if (searchType === "movies") finalQuery += " pelicula";
         if (searchType === "series") finalQuery += " serie";
 
-        
-        // 📝 BLOGS
         if (searchType === "blogs") {
             finalQuery += " (blog OR wordpress OR blogspot)";
         }
 
-        // 🔎 MODO PROFUNDO
-        const deepMode = document.getElementById("deepMode");
-        if (deepMode && deepMode.checked) {
-            finalQuery += " (lost media OR rare OR obscure OR forgotten)";
-        }
-
-        // 🔥 FILTROS AVANZADOS
-        if (document.getElementById("blogsOnly")?.checked) {
-            finalQuery += " site:blogspot.com OR site:wordpress.com";
-        }
-
-        if (document.getElementById("forums")?.checked) {
-            finalQuery += " (forum OR reddit OR threads)";
-        }
-
-        if (document.getElementById("archives")?.checked) {
-            finalQuery += " (archive.org OR web.archive.org)";
-        }
-
-        if (document.getElementById("oldWeb")?.checked) {
-            finalQuery += " (old website OR 2000s OR geocities)";
-        }
-
-        if (document.getElementById("downloads")?.checked) {
-            finalQuery += " (mp4 OR avi OR mkv OR mp3 OR download)";
+        // 🔎 FILTROS
+        if (document.getElementById("deepMode")?.checked) {
+            finalQuery += " (lost media OR rare OR obscure)";
         }
 
         if (document.getElementById("excludeStreaming")?.checked) {
@@ -85,7 +61,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 `${API_URL}?q=${encodeURIComponent(finalQuery)}&type=${searchType}`
             );
 
-            // 🔥 PROTECCIÓN CONTRA HTML (error típico)
             const text = await res.text();
 
             let data;
@@ -94,7 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 data = JSON.parse(text);
             } catch (e) {
                 console.error("Respuesta no es JSON:", text);
-                resultDiv.innerHTML = "❌ Error del servidor (no JSON)";
+                resultDiv.innerHTML = "❌ Error del servidor";
                 return;
             }
 
@@ -106,10 +81,38 @@ document.addEventListener("DOMContentLoaded", () => {
             resultDiv.innerHTML = "<h2>🔎 Resultados</h2>";
 
             data.results.forEach(r => {
+
+                let filesHtml = "";
+
+                if (r.files && r.files.length > 0) {
+
+                    filesHtml = "<ul>";
+
+                    r.files.forEach(f => {
+
+                        let icon = "📄";
+
+                        if (f.type === "video") icon = "🎬";
+                        else if (f.type === "audio") icon = "🎵";
+                        else if (f.type === "image") icon = "🖼️";
+                        else if (f.type === "archive") icon = "📦";
+
+                        filesHtml += `
+                            <li>
+                                ${icon}
+                                <a href="${f.url}" target="_blank">${f.url}</a>
+                            </li>
+                        `;
+                    });
+
+                    filesHtml += "</ul>";
+                }
+
                 resultDiv.innerHTML += `
                     <div class="result-item">
                         <a href="${r.url}" target="_blank">${r.title}</a>
                         <p>${r.url}</p>
+                        ${filesHtml}
                     </div>
                 `;
             });
