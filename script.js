@@ -92,5 +92,16 @@ document.addEventListener("DOMContentLoaded", () => {
             <a href="${googleURL}" target="_blank">👉 Buscar en Google</a>
         `;
     }
+buttons.forEach(btn => {
+    btn.addEventListener("click", () => {
 
+        buttons.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        searchType = btn.dataset.type;
+
+        if (searchType !== "all") {
+            buscar();
+        }
+    });
 });
