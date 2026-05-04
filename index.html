@@ -7,14 +7,54 @@
 </head>
 <body>
 
-    <h1>🔍 Lost Media Finder</h1>
+    <div class="container">
 
-    <div class="search-box">
-        <input type="text" id="searchInput" placeholder="Buscar lost media...">
-        <button onclick="searchMedia()">Buscar</button>
+        <h1>🔍 Lost Media Finder</h1>
+
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Buscar lost media...">
+            <button onclick="searchMedia()">Buscar</button>
+        </div>
+
+        <div class="filters">
+
+            <h3>🎯 Filtros de búsqueda</h3>
+
+            <label>
+                <input type="checkbox" id="blogsOnly">
+                Blogs / WordPress / Blogspot
+            </label>
+
+            <label>
+                <input type="checkbox" id="forums">
+                Foros / Reddit / comunidades
+            </label>
+
+            <label>
+                <input type="checkbox" id="archives">
+                Archivos digitales (Archive.org)
+            </label>
+
+            <label>
+                <input type="checkbox" id="oldWeb">
+                Webs antiguas / abandonadas
+            </label>
+
+            <label>
+                <input type="checkbox" id="downloads">
+                Descargas directas (AVI, VHS, DVDRip)
+            </label>
+
+            <label>
+                <input type="checkbox" id="excludeStreaming">
+                Excluir plataformas comerciales (Netflix, Prime, etc.)
+            </label>
+
+        </div>
+
+        <div id="results"></div>
+
     </div>
-
-    <div id="results"></div>
 
     <script src="script.js"></script>
 
