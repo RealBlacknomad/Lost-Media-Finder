@@ -11,15 +11,22 @@
 
     <h1>🔍 Lost Media Finder</h1>
 
-    <form id="searchForm" class="search-box">
-        <input 
-            type="text" 
-            id="searchInput" 
-            placeholder="Ej: película de cacahuetes stop motion..."
-            autocomplete="off"
-        >
-        <button type="submit">Buscar</button>
-    </form>
+<form id="searchForm" class="search-box">
+
+    <input 
+        type="text" 
+        id="searchInput" 
+        placeholder="Ej: zombies, animación rara..."
+        autocomplete="off"
+    >
+
+    <div class="search-actions">
+        <button type="submit" data-type="all">Buscar</button>
+        <button type="button" data-type="movies">Películas</button>
+        <button type="button" data-type="series">Series</button>
+    </div>
+
+</form>
 
     <div class="filters">
 
