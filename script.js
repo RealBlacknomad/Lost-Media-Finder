@@ -1,18 +1,15 @@
 resultsDiv.innerHTML = "";
 
-// Abstract principal
 if (data.Heading && data.AbstractText) {
   resultsDiv.innerHTML += `
     <div class="result-item">
-      <h2>${data.Heading}</h2>
+      <h2><a href="${data.AbstractURL}" target="_blank">${data.Heading}</a></h2>
       <p>${data.AbstractText}</p>
-      ${data.AbstractURL ? `<a href="${data.AbstractURL}" target="_blank">Más información</a>` : ""}
     </div>
   `;
 }
 
-// RelatedTopics
-if (data.RelatedTopics && data.RelatedTopics.length > 0) {
+if (data.RelatedTopics) {
   data.RelatedTopics.forEach(item => {
     if (item.Text && item.FirstURL) {
       resultsDiv.innerHTML += `
