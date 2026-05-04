@@ -19,10 +19,28 @@ def search():
 
     results = []
 
-    # 🔥 FUENTE 1: DuckDuckGo (solo para modo normal)
+    # 🧠 MODIFICAR QUERY SEGÚN MODO
+    final_query = query
+
+    if search_type == "indexof":
+        final_query = f'intitle:"index of" {query} (mp4|avi|mkv|mp3|jpg|png|zip)'
+
+    elif search_type == "blogs":
+        final_query = f'{query} (site:blogspot.com OR site:wordpress.com)'
+
+    elif search_type == "movies":
+        final_query = f'{query} pelicula lost media'
+
+    elif search_type == "series":
+        final_query = f'{query} serie lost media'
+
+    else:
+        final_query = f'{query} lost media -netflix -amazon -disney'
+
+    # 🔥 DuckDuckGo SOLO modo normal
     if search_type == "all":
         try:
-            url = f"https://api.duckduckgo.com/?q={query}&format=json&no_redirect=1"
+            url = f"https://api.duckduckgo.com/?q={final_query}&format=json&no_redirect=1"
             res = requests.get(url, timeout=3)
             data = res.json()
 
@@ -36,54 +54,29 @@ def search():
         except Exception as e:
             print("DuckDuckGo falló:", e)
 
-    # 🔥 SI NO HAY RESULTADOS O ES MODO ESPECIAL
-    if len(results) < 3:
+    # 🔥 SIEMPRE añadir búsqueda Google optimizada
+    results.append({
+        "title": f"🔎 Google: {final_query}",
+        "url": f"https://www.google.com/search?q={final_query}"
+    })
 
-        # 📁 INDEX OF
-        if search_type == "indexof":
-            results.append({
-                "title": f"📁 Index Of: {query}",
-                "url": f"https://www.google.com/search?q=intitle:index.of+{query}+(mp4|avi|mkv|mp3)"
-            })
-
-        # 📝 BLOGS
-        elif search_type == "blogs":
-            results.append({
-                "title": f"📝 Blogs: {query}",
-                "url": f"https://www.google.com/search?q={query}+site:blogspot.com+OR+site:wordpress.com"
-            })
-
-        # 🎬 PELÍCULAS
-        elif search_type == "movies":
-            results.append({
-                "title": f"🎬 Buscar película: {query}",
-                "url": f"https://www.google.com/search?q={query}+pelicula+lost+media"
-            })
-
-        # 📺 SERIES
-        elif search_type == "series":
-            results.append({
-                "title": f"📺 Buscar serie: {query}",
-                "url": f"https://www.google.com/search?q={query}+serie+lost+media"
-            })
-
-        # 🌐 DEFAULT (modo limpio)
-        else:
-            results.append({
-                "title": f"🔎 Buscar '{query}' (limpio)",
-                "url": f"https://www.google.com/search?q={query}+lost+media+-netflix+-amazon+-disney"
-            })
-
-        # 🔥 SIEMPRE agregar estas fuentes
+    # 📁 EXTRA POTENTE PARA INDEX OF
+    if search_type == "indexof":
         results.append({
-            "title": f"📚 Archive.org: {query}",
-            "url": f"https://archive.org/search?query={query}"
+            "title": f"📁 Index Of directo (alternativo)",
+            "url": f"https://www.google.com/search?q=intitle:index.of+{query}"
         })
 
-        results.append({
-            "title": f"💬 Reddit: {query}",
-            "url": f"https://www.reddit.com/search/?q={query}"
-        })
+    # 🔥 FUENTES CLAVE
+    results.append({
+        "title": f"📚 Archive.org: {query}",
+        "url": f"https://archive.org/search?query={query}"
+    })
+
+    results.append({
+        "title": f"💬 Reddit: {query}",
+        "url": f"https://www.reddit.com/search/?q={query}"
+    })
 
     return jsonify({"results": results})
 
