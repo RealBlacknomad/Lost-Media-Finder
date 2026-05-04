@@ -1,23 +1,22 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Lost Media Finder</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>Lost Media Finder</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>Lost Media Finder</h1>
 
-  <!-- Formulario de búsqueda -->
-  <form id="search-form">
-    <input type="text" id="search-input" placeholder="Escribe tu búsqueda..." />
-    <button type="submit">Buscar</button>
-  </form>
+    <h1>🔍 Lost Media Finder</h1>
 
-  <!-- Contenedor de resultados -->
-  <div id="results" class="results-box"></div>
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Buscar lost media...">
+        <button onclick="searchMedia()">Buscar</button>
+    </div>
 
-  <!-- Script principal -->
-  <script src="script.js"></script>
+    <div id="results"></div>
+
+    <script src="script.js"></script>
+
 </body>
 </html>
