@@ -5,12 +5,10 @@ import requests
 app = Flask(__name__)
 CORS(app)
 
-# 🔹 Ruta base
 @app.route("/")
 def home():
     return "Backend funcionando 🚀"
 
-# 🔹 Ruta de búsqueda
 @app.route("/search")
 def search():
     query = request.args.get("q")
@@ -20,7 +18,6 @@ def search():
 
     results = []
 
-    # 🔸 Intento con DuckDuckGo
     try:
         url = f"https://api.duckduckgo.com/?q={query}&format=json"
         res = requests.get(url, timeout=3)
@@ -37,7 +34,6 @@ def search():
     except Exception as e:
         print("DuckDuckGo falló:", e)
 
-    # 🔸 Fallback SIEMPRE (esto evita pantalla vacía)
     if not results:
         results.append({
             "title": f"Buscar '{query}' en Archive.org",
@@ -55,7 +51,6 @@ def search():
         })
 
     return jsonify({"results": results})
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
