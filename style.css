@@ -1,35 +1,49 @@
+/* 🌑 FONDO GENERAL */
 body {
-    background: #0f172a;
-    color: #e2e8f0;
-    font-family: Arial, sans-serif;
     margin: 0;
+    background: #0e0e11;
+    color: white;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
 }
 
+/* CONTENEDOR CENTRAL */
 .container {
-    max-width: 800px;
-    margin: 80px auto;
-    padding: 20px;
-}
-
-h1 {
     text-align: center;
-    font-size: 32px;
+    width: 100%;
+    max-width: 700px;
 }
 
+/* TÍTULO */
+h1 {
+    font-size: 40px;
+    margin-bottom: 30px;
+    color: #ff4d4d;
+}
+
+/* 🔍 BUSCADOR */
 .search-box {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
+/* INPUT GRANDE */
 .search-box input {
-    padding: 14px;
-    border-radius: 10px;
-    border: none;
-    font-size: 16px;
+    width: 100%;
+    padding: 18px;
+    border-radius: 40px;
+    border: 2px solid #ff4d4d;
+    background: #1a1a1f;
+    color: white;
+    font-size: 18px;
     outline: none;
 }
 
+/* BOTONES */
 .search-actions {
     display: flex;
     gap: 10px;
@@ -37,39 +51,45 @@ h1 {
 
 .search-actions button {
     flex: 1;
-    padding: 10px;
+    padding: 12px;
+    border-radius: 30px;
     border: none;
-    border-radius: 8px;
-    background: #1e293b;
+    background: #1f1f25;
     color: white;
     cursor: pointer;
     transition: 0.2s;
 }
 
 .search-actions button:hover {
-    background: #334155;
+    background: #ff4d4d;
 }
 
+/* FILTROS */
 .filters {
-    margin-top: 30px;
-    background: #1e293b;
+    margin-top: 25px;
+    background: #1a1a1f;
     padding: 15px;
-    border-radius: 10px;
+    border-radius: 12px;
+    text-align: left;
 }
 
 .filters label {
     display: block;
-    margin: 5px 0;
+    margin: 6px 0;
+    font-size: 14px;
 }
 
+/* RESULTADOS */
 #results {
-    margin-top: 30px;
-    background: #1e293b;
+    margin-top: 25px;
+    background: #1a1a1f;
     padding: 20px;
-    border-radius: 10px;
+    border-radius: 12px;
 }
 
+/* LINK */
 a {
-    color: #38bdf8;
+    color: #ff4d4d;
     text-decoration: none;
+    font-weight: bold;
 }
