@@ -1,3 +1,4 @@
+from bs4 import BeautifulSoup
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
@@ -9,7 +10,48 @@ CORS(app)
 @app.route("/")
 def home():
     return "Backend funcionando 🚀"
+def get_file_type(url):
+    url = url.lower()
 
+    if url.endswith((".mp4", ".mkv", ".avi", ".3gp")):
+        return "video"
+    if url.endswith((".mp3", ".wav")):
+        return "audio"
+    if url.endswith((".jpg", ".jpeg", ".png", ".gif")):
+        return "image"
+    if url.endswith((".zip", ".rar", ".7z")):
+        return "archive"
+
+    return "other"
+
+
+def extract_files_from_page(url):
+    try:
+        res = requests.get(url, timeout=5)
+        soup = BeautifulSoup(res.text, "lxml")
+
+        files = []
+
+        for a in soup.find_all("a"):
+            href = a.get("href")
+
+            if not href:
+                continue
+
+            full_url = urllib.parse.urljoin(url, href)
+
+            if any(full_url.lower().endswith(ext) for ext in [
+                ".mp4", ".mkv", ".avi", ".mp3", ".zip", ".jpg", ".png"
+            ]):
+                files.append({
+                    "url": full_url,
+                    "type": get_file_type(full_url)
+                })
+
+        return files[:10]
+
+    except:
+        return []
 @app.route("/search")
 def search():
     query = request.args.get("q")
