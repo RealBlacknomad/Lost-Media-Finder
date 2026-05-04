@@ -41,19 +41,17 @@ document.addEventListener("DOMContentLoaded", () => {
         if (searchType === "movies") finalQuery += " pelicula";
         if (searchType === "series") finalQuery += " serie";
 
-        
         // 📝 BLOGS
         if (searchType === "blogs") {
             finalQuery += " (blog OR wordpress OR blogspot)";
         }
 
         // 🔎 MODO PROFUNDO
-        const deepMode = document.getElementById("deepMode");
-        if (deepMode && deepMode.checked) {
+        if (document.getElementById("deepMode")?.checked) {
             finalQuery += " (lost media OR rare OR obscure OR forgotten)";
         }
 
-        // 🔥 FILTROS AVANZADOS
+        // 🔥 FILTROS
         if (document.getElementById("blogsOnly")?.checked) {
             finalQuery += " site:blogspot.com OR site:wordpress.com";
         }
@@ -85,7 +83,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 `${API_URL}?q=${encodeURIComponent(finalQuery)}&type=${searchType}`
             );
 
-            // 🔥 PROTECCIÓN CONTRA HTML (error típico)
             const text = await res.text();
 
             let data;
@@ -94,7 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 data = JSON.parse(text);
             } catch (e) {
                 console.error("Respuesta no es JSON:", text);
-                resultDiv.innerHTML = "❌ Error del servidor (no JSON)";
+                resultDiv.innerHTML = "❌ Error del servidor";
                 return;
             }
 
@@ -107,30 +104,44 @@ document.addEventListener("DOMContentLoaded", () => {
 
             data.results.forEach(r => {
 
-    let filesHtml = "";
+                let filesHtml = "";
 
-    if (r.files && r.files.length > 0) {
-        filesHtml = "<ul class='file-list'>";
+                if (r.files && r.files.length > 0) {
+                    filesHtml = "<ul class='file-list'>";
 
-        r.files.forEach(f => {
+                    r.files.forEach(f => {
 
-            let icon = "📄";
+                        let icon = "📄";
 
-            if (f.match(/\.(mp4|mkv|avi|3gp)$/)) icon = "🎬";
-            else if (f.match(/\.(mp3|wav)$/)) icon = "🎵";
-            else if (f.match(/\.(jpg|jpeg|png|gif)$/)) icon = "🖼️";
-            else if (f.match(/\.(zip|rar)$/)) icon = "📦";
+                        // ✅ USAR f.type (CORRECTO)
+                        if (f.type === "video") icon = "🎬";
+                        else if (f.type === "audio") icon = "🎵";
+                        else if (f.type === "image") icon = "🖼️";
+                        else if (f.type === "archive") icon = "📦";
 
-            filesHtml += `<li>${icon} <a href="${f}" target="_blank">${f}</a></li>`;
-        });
+                        filesHtml += `
+                            <li>
+                                ${icon} 
+                                <a href="${f.url}" target="_blank">${f.url}</a>
+                            </li>
+                        `;
+                    });
 
-        filesHtml += "</ul>";
+                    filesHtml += "</ul>";
+                }
+
+                resultDiv.innerHTML += `
+                    <div class="result-item">
+                        <a href="${r.url}" target="_blank">${r.title}</a>
+                        ${filesHtml}
+                    </div>
+                `;
+            });
+
+        } catch (error) {
+            console.error(error);
+            resultDiv.innerHTML = "❌ Error de conexión";
+        }
     }
 
-    resultDiv.innerHTML += `
-        <div class="result-item">
-            <a href="${r.url}" target="_blank">${r.title}</a>
-            ${filesHtml}
-        </div>
-    `;
 });
