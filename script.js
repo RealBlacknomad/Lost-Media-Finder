@@ -1,24 +1,38 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const btn = document.querySelector("button");
+
+    const btn = document.getElementById("searchBtn");
+    const input = document.getElementById("searchInput");
+
     if (btn) {
         btn.addEventListener("click", buscar);
     }
+
+    // ENTER también busca
+    if (input) {
+        input.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                buscar();
+            }
+        });
+    }
+
 });
 
 function buscar() {
-    const input = document.getElementById("searchInput");
-    const resultsDiv = document.getElementById("results");
 
-    if (!input || !resultsDiv) return;
+    const input = document.getElementById("searchInput");
+    const resultDiv = document.getElementById("results");
+
+    if (!input || !resultDiv) return;
 
     const query = input.value.trim();
 
     if (!query) {
-        resultsDiv.innerHTML = "<p>Escribe algo para buscar 👀</p>";
+        resultDiv.innerHTML = "<p>⚠️ Escribe algo para buscar</p>";
         return;
     }
 
-    // Leer checkboxes (adaptado a tu HTML)
+    // helper checkboxes
     const getChecked = (id) => {
         const el = document.getElementById(id);
         return el ? el.checked : false;
@@ -32,13 +46,15 @@ function buscar() {
     const excluir = getChecked("excludeStreaming");
     const deepMode = getChecked("deepMode");
 
-    let baseQuery = `"${query}" pelicula video animacion`;
+    // base query
+    let baseQuery = `${query} pelicula video animacion`;
 
     if (deepMode) {
         baseQuery += " (archive OR lost media OR rare OR obscure)";
-        baseQuery += " (\"2000\" OR \"2005\" OR \"2010\")";
+        baseQuery += " (\"2000s\" OR \"90s\" OR \"2010\")";
     }
 
+    // filtros
     let filtros = [];
 
     if (blogs) filtros.push("(site:blogspot.com OR site:wordpress.com)");
@@ -47,32 +63,21 @@ function buscar() {
     if (oldWeb) filtros.push("(\"last updated\" OR \"guestbook\" OR \"old website\")");
     if (descargas) filtros.push("(download OR dvdrip OR \"vhs rip\" OR megaupload)");
 
-    let filtrosQuery = filtros.length ? "(" + filtros.join(" OR ") + ")" : "";
+    let filtrosQuery = filtros.length ? `(${filtros.join(" OR ")})` : "";
 
-    let excludeQuery = excluir ? "-netflix -amazon -prime -disney -hbo" : "";
+    // excluir plataformas
+    let excluirQuery = excluir ? "-netflix -amazon -prime -disney -hbo" : "";
 
-    const finalQuery = `${baseQuery} ${filtrosQuery} ${excludeQuery}`;
+    const finalQuery = `${baseQuery} ${filtrosQuery} ${excluirQuery}`;
 
     const googleURL = `https://www.google.com/search?q=${encodeURIComponent(finalQuery)}`;
-    const redditURL = `https://www.google.com/search?q=${encodeURIComponent(finalQuery + " site:reddit.com")}`;
-    const archiveURL = `https://www.google.com/search?q=${encodeURIComponent(finalQuery + " site:archive.org")}`;
 
-    resultsDiv.innerHTML = `
+    // output
+    resultDiv.innerHTML = `
         <h2>🔎 Resultados sugeridos</h2>
-
-        <div class="result-item">
-            <a href="${googleURL}" target="_blank">🌐 Buscar en Google</a>
-            <p>Búsqueda general inteligente</p>
-        </div>
-
-        <div class="result-item">
-            <a href="${redditURL}" target="_blank">💬 Buscar en foros / Reddit</a>
-            <p>Discusiones y pistas de usuarios</p>
-        </div>
-
-        <div class="result-item">
-            <a href="${archiveURL}" target="_blank">📦 Buscar en Archive</a>
-            <p>Contenido antiguo y perdido</p>
-        </div>
+        <p><strong>Búsqueda generada:</strong></p>
+        <p>${finalQuery}</p>
+        <br>
+        <a href="${googleURL}" target="_blank">👉 Buscar en Google</a>
     `;
 }
