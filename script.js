@@ -23,103 +23,112 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function buscar() {
 
-        const input = document.getElementById("searchInput");
-        const resultDiv = document.getElementById("results");
+    const input = document.getElementById("searchInput");
+    const resultDiv = document.getElementById("results");
 
-        const query = input.value.trim();
+    const query = input.value.trim();
 
-        if (!query) {
-            resultDiv.innerHTML = "⚠️ Escribe algo";
+    if (!query) {
+        resultDiv.innerHTML = "⚠️ Escribe algo";
+        return;
+    }
+
+    // 🚨 VALIDAR MOTORES
+    const selectedEngines = Array.from(document.querySelectorAll(".engine:checked"))
+        .map(e => e.value);
+
+    if (selectedEngines.length === 0) {
+        resultDiv.innerHTML = "⚠️ Selecciona al menos un motor de búsqueda";
+        return;
+    }
+
+    resultDiv.innerHTML = "⏳ Buscando...";
+
+    let finalQuery = query;
+
+    // 🎬 TIPOS
+    if (searchType === "movies") finalQuery += " pelicula";
+    if (searchType === "series") finalQuery += " serie";
+
+    if (searchType === "blogs") {
+        finalQuery += " (blog OR wordpress OR blogspot)";
+    }
+
+    // 🔎 FILTROS
+    if (document.getElementById("deepMode")?.checked) {
+        finalQuery += " (lost media OR rare OR obscure)";
+    }
+
+    if (document.getElementById("excludeStreaming")?.checked) {
+        finalQuery += " -netflix -amazon -disney -hulu";
+    }
+
+    try {
+        const API_URL = "https://lost-media-finder.onrender.com/search";
+
+        const res = await fetch(
+            `${API_URL}?q=${encodeURIComponent(finalQuery)}&type=${searchType}&engines=${selectedEngines.join(",")}`
+        );
+
+        const text = await res.text();
+
+        let data;
+
+        try {
+            data = JSON.parse(text);
+        } catch (e) {
+            console.error("Respuesta no es JSON:", text);
+            resultDiv.innerHTML = "❌ Error del servidor";
             return;
         }
 
-        resultDiv.innerHTML = "⏳ Buscando...";
-
-        let finalQuery = query;
-
-        // 🎬 TIPOS
-        if (searchType === "movies") finalQuery += " pelicula";
-        if (searchType === "series") finalQuery += " serie";
-
-        if (searchType === "blogs") {
-            finalQuery += " (blog OR wordpress OR blogspot)";
+        if (!data.results || data.results.length === 0) {
+            resultDiv.innerHTML = "❌ Sin resultados";
+            return;
         }
 
-        // 🔎 FILTROS
-        if (document.getElementById("deepMode")?.checked) {
-            finalQuery += " (lost media OR rare OR obscure)";
-        }
+        resultDiv.innerHTML = "<h2>🔎 Resultados</h2>";
 
-        if (document.getElementById("excludeStreaming")?.checked) {
-            finalQuery += " -netflix -amazon -disney -hulu";
-        }
+        data.results.forEach(r => {
 
-        try {
-            const API_URL = "https://lost-media-finder.onrender.com/search";
+            let filesHtml = "";
 
-            const res = await fetch(
-                `${API_URL}?q=${encodeURIComponent(finalQuery)}&type=${searchType}`
-            );
+            if (r.files && r.files.length > 0) {
 
-            const text = await res.text();
+                filesHtml = "<ul>";
 
-            let data;
+                r.files.forEach(f => {
 
-            try {
-                data = JSON.parse(text);
-            } catch (e) {
-                console.error("Respuesta no es JSON:", text);
-                resultDiv.innerHTML = "❌ Error del servidor";
-                return;
+                    let icon = "📄";
+
+                    if (f.type === "video") icon = "🎬";
+                    else if (f.type === "audio") icon = "🎵";
+                    else if (f.type === "image") icon = "🖼️";
+                    else if (f.type === "archive") icon = "📦";
+
+                    filesHtml += `
+                        <li>
+                            ${icon}
+                            <a href="${f.url}" target="_blank">${f.url}</a>
+                        </li>
+                    `;
+                });
+
+                filesHtml += "</ul>";
             }
 
-            if (!data.results || data.results.length === 0) {
-                resultDiv.innerHTML = "❌ Sin resultados";
-                return;
-            }
+            resultDiv.innerHTML += `
+                <div class="result-item">
+                    <a href="${r.url}" target="_blank">${r.title}</a>
+                    <p>${r.url}</p>
+                    ${filesHtml}
+                </div>
+            `;
+        });
 
-            resultDiv.innerHTML = "<h2>🔎 Resultados</h2>";
-
-            data.results.forEach(r => {
-
-                let filesHtml = "";
-
-                if (r.files && r.files.length > 0) {
-
-                    filesHtml = "<ul>";
-
-                    r.files.forEach(f => {
-
-                        let icon = "📄";
-
-                        if (f.type === "video") icon = "🎬";
-                        else if (f.type === "audio") icon = "🎵";
-                        else if (f.type === "image") icon = "🖼️";
-                        else if (f.type === "archive") icon = "📦";
-
-                        filesHtml += `
-                            <li>
-                                ${icon}
-                                <a href="${f.url}" target="_blank">${f.url}</a>
-                            </li>
-                        `;
-                    });
-
-                    filesHtml += "</ul>";
-                }
-
-                resultDiv.innerHTML += `
-                    <div class="result-item">
-                        <a href="${r.url}" target="_blank">${r.title}</a>
-                        <p>${r.url}</p>
-                        ${filesHtml}
-                    </div>
-                `;
-            });
-
-        } catch (error) {
-            console.error(error);
-            resultDiv.innerHTML = "❌ Error conectando con backend";
-        }
+    } catch (error) {
+        console.error(error);
+        resultDiv.innerHTML = "❌ Error conectando con backend";
     }
+}
 });
