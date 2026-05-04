@@ -3,7 +3,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const input = document.getElementById("search-input");
   const resultsDiv = document.getElementById("results");
 
-  // 🚫 sitios bloqueados (mainstream)
   const blockedSites = [
     "netflix.com",
     "amazon.com",
@@ -16,74 +15,58 @@ document.addEventListener("DOMContentLoaded", () => {
     return blockedSites.some(site => url.includes(site));
   }
 
-  // 🧠 priorización de contenido "oscuro"
-  function score(url) {
-    if (url.includes("archive.org")) return 10;
-    if (url.includes("blog")) return 8;
-    if (url.includes("forum")) return 7;
-    if (url.includes("reddit")) return 6;
-    return 1;
-  }
-
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    resultsDiv.innerHTML = "<p>Buscando en lo profundo de internet...</p>";
+    resultsDiv.innerHTML = "<p>Buscando en la web profunda...</p>";
 
     let query = input.value.trim();
     if (!query) {
-      resultsDiv.innerHTML = "<p>Escribe algo primero.</p>";
+      resultsDiv.innerHTML = "<p>Escribe algo.</p>";
       return;
     }
 
-    // 🔎 optimización de búsqueda
-    query += " lost media obscure rare film archive";
+    query += " lost media obscure archive";
 
     try {
       const response = await fetch(
-        `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&origin=*`
+        `https://corsproxy.io/?https://duckduckgo.com/html/?q=${encodeURIComponent(query)}`
       );
 
-      const data = await response.json();
+      const html = await response.text();
 
-      let results = [];
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, "text/html");
 
-      // resultados relacionados
-      if (data.RelatedTopics) {
-        data.RelatedTopics.forEach(item => {
-          if (item.Text && item.FirstURL && !isBlocked(item.FirstURL)) {
-            results.push({
-              title: item.Text,
-              url: item.FirstURL
-            });
-          }
-        });
-      }
-
-      // 🧠 ordenar por relevancia "oscura"
-      results.sort((a, b) => score(b.url) - score(a.url));
+      const links = doc.querySelectorAll(".result__a");
 
       resultsDiv.innerHTML = "";
 
-      if (results.length === 0) {
-        resultsDiv.innerHTML = "<p>No se encontraron resultados interesantes.</p>";
-        return;
-      }
+      let count = 0;
 
-      // 🖼️ render con imagen
-      results.forEach(item => {
-        const div = document.createElement("div");
-        div.className = "result-item";
+      links.forEach(link => {
+        const url = link.href;
+        const title = link.textContent;
 
-        const image = `https://source.unsplash.com/300x200/?${encodeURIComponent(input.value)}`;
+        if (!isBlocked(url) && count < 10) {
+          const div = document.createElement("div");
+          div.className = "result-item";
 
-        div.innerHTML = `
-          <img src="${image}" style="width:300px; height:200px; object-fit:cover; border-radius:8px;">
-          <h3><a href="${item.url}" target="_blank">${item.title}</a></h3>
-        `;
+          const image = `https://source.unsplash.com/300x200/?${encodeURIComponent(input.value)}`;
 
-        resultsDiv.appendChild(div);
+          div.innerHTML = `
+            <img src="${image}" style="width:300px; height:200px; object-fit:cover;">
+            <h3><a href="${url}" target="_blank">${title}</a></h3>
+          `;
+
+          resultsDiv.appendChild(div);
+          count++;
+        }
       });
+
+      if (count === 0) {
+        resultsDiv.innerHTML = "<p>No se encontraron resultados útiles.</p>";
+      }
 
     } catch (error) {
       resultsDiv.innerHTML = `<p>Error: ${error.message}</p>`;
