@@ -16,20 +16,32 @@ def search():
     if not query:
         return jsonify({"results": []})
 
-    url = f"https://api.duckduckgo.com/?q={query}&format=json"
-    res = requests.get(url)
-    data = res.json()
+    try:
+        url = f"https://api.duckduckgo.com/?q={query}&format=json"
 
-    results = []
+        # 🔥 AQUÍ ESTÁ LA CLAVE
+        res = requests.get(url, timeout=5)
 
-    if "RelatedTopics" in data:
-        for item in data["RelatedTopics"]:
-            if isinstance(item, dict):
-                if "Text" in item and "FirstURL" in item:
-                    results.append({
-                        "title": item["Text"],
-                        "url": item["FirstURL"]
-                    })
+        data = res.json()
+        results = []
+
+        if "RelatedTopics" in data:
+            for item in data["RelatedTopics"]:
+                if isinstance(item, dict):
+                    if "Text" in item and "FirstURL" in item:
+                        results.append({
+                            "title": item["Text"],
+                            "url": item["FirstURL"]
+                        })
+
+        return jsonify({"results": results})
+
+    except Exception as e:
+        print("ERROR:", e)
+        return jsonify({
+            "results": [],
+            "error": "Error al obtener datos externos"
+        })
 
     return jsonify({"results": results})
 
