@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify 
 from flask_cors import CORS
 import requests
 import urllib.parse
@@ -31,12 +31,11 @@ def get_file_type(url):
     return "other"
 
 
-# 📦 EXTRAER ARCHIVOS DE UNA PÁGINA
+# 📦 EXTRAER ARCHIVOS
 def extract_files_from_page(url):
     try:
         res = requests.get(url, headers=HEADERS, timeout=5)
 
-        # 🔒 evitar HTML raro o bloqueos
         if "text/html" not in res.headers.get("Content-Type", ""):
             return []
 
@@ -46,7 +45,6 @@ def extract_files_from_page(url):
 
         for a in soup.find_all("a"):
             href = a.get("href")
-
             if not href:
                 continue
 
@@ -69,58 +67,66 @@ def extract_files_from_page(url):
         return []
 
 
+# 🔎 GENERADOR DE URL SEGÚN MOTOR
+def build_search_url(engine, query):
+
+    q = urllib.parse.quote(query)
+
+    if engine == "google":
+        return f"https://www.google.com/search?q={q}"
+
+    elif engine == "duckduckgo":
+        return f"https://duckduckgo.com/?q={q}"
+
+    elif engine == "yandex":
+        return f"https://yandex.com/search/?text={q}"
+
+    elif engine == "bing":
+        return f"https://www.bing.com/search?q={q}"
+
+    return None
+
+
 @app.route("/search")
 def search():
+
     query = request.args.get("q")
     search_type = request.args.get("type", "all")
-engines = request.args.get("engines", "google").split(",")
+    engines = request.args.get("engines", "google").split(",")
+
     if not query:
         return jsonify({"results": []})
 
     results = []
 
-for engine in engines:
-
-    if engine == "google":
-        results += search_google(q)
-
-    elif engine == "duckduckgo":
-        results += search_duckduckgo(q)
-
-    elif engine == "yandex":
-        results += search_yandex(q)
-
-    elif engine == "bing":
-        results += search_bing(q)
-    queries = []
-
     # 🎯 MODOS
     if search_type == "movies":
-        queries = [f"{query} pelicula"]
+        query += " pelicula"
     elif search_type == "series":
-        queries = [f"{query} serie"]
+        query += " serie"
     elif search_type == "blogs":
-        queries = [f"{query} blog OR wordpress OR blogspot"]
+        query += " (blog OR wordpress OR blogspot)"
     elif search_type == "indexof":
-        queries = [f'intitle:"index of" {query}']
-    else:
-        queries = [query]
+        query = f'intitle:"index of" {query}'
 
-    # 🔎 RESULTADOS BASE (sin romper nada)
-    for q in queries:
-        encoded_q = urllib.parse.quote(q)
-        google_url = f"https://www.google.com/search?q={encoded_q}"
+    # 🔍 BUSCAR EN CADA MOTOR
+    for engine in engines:
 
-        # 🔥 EXTRA: intentar detectar archivos (NO rompe si falla)
-        files = extract_files_from_page(google_url)
+        search_url = build_search_url(engine, query)
+
+        if not search_url:
+            continue
+
+        # 🔥 intentar detectar archivos
+        files = extract_files_from_page(search_url)
 
         results.append({
-            "title": f"🔎 {q}",
-            "url": google_url,
+            "title": f"🔎 {engine.upper()} | {query}",
+            "url": search_url,
             "files": files
         })
 
-    # 📚 extras (igual que tu versión original)
+    # 📚 extras
     results.append({
         "title": f"📚 Archive.org: {query}",
         "url": f"https://archive.org/search?query={urllib.parse.quote(query)}"
