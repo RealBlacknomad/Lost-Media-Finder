@@ -106,17 +106,31 @@ document.addEventListener("DOMContentLoaded", () => {
             resultDiv.innerHTML = "<h2>🔎 Resultados</h2>";
 
             data.results.forEach(r => {
-                resultDiv.innerHTML += `
-                    <div class="result-item">
-                        <a href="${r.url}" target="_blank">${r.title}</a>
-                        <p>${r.url}</p>
-                    </div>
-                `;
-            });
 
-        } catch (error) {
-            console.error(error);
-            resultDiv.innerHTML = "❌ Error conectando con backend";
-        }
+    let filesHtml = "";
+
+    if (r.files && r.files.length > 0) {
+        filesHtml = "<ul class='file-list'>";
+
+        r.files.forEach(f => {
+
+            let icon = "📄";
+
+            if (f.match(/\.(mp4|mkv|avi|3gp)$/)) icon = "🎬";
+            else if (f.match(/\.(mp3|wav)$/)) icon = "🎵";
+            else if (f.match(/\.(jpg|jpeg|png|gif)$/)) icon = "🖼️";
+            else if (f.match(/\.(zip|rar)$/)) icon = "📦";
+
+            filesHtml += `<li>${icon} <a href="${f}" target="_blank">${f}</a></li>`;
+        });
+
+        filesHtml += "</ul>";
     }
+
+    resultDiv.innerHTML += `
+        <div class="result-item">
+            <a href="${r.url}" target="_blank">${r.title}</a>
+            ${filesHtml}
+        </div>
+    `;
 });
