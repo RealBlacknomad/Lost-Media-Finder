@@ -1,27 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
-
-    const form = document.getElementById("searchForm");
-    const buttons = document.querySelectorAll(".search-actions button");
-
-    let searchType = "all";
-
-    buttons.forEach(btn => {
-        btn.addEventListener("click", () => {
-
-            buttons.forEach(b => b.classList.remove("active"));
-            btn.classList.add("active");
-
-            searchType = btn.dataset.type;
-            buscar();
-        });
-    });
-
-    form.addEventListener("submit", (e) => {
-        e.preventDefault();
-        buscar();
-    });
-
-    async function buscar() {
+async function buscar() {
 
     const input = document.getElementById("searchInput");
     const resultDiv = document.getElementById("results");
@@ -79,7 +56,8 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        resultDiv.innerHTML = "<h2>🔎 Resultados</h2>";
+        // ✅ RENDER OPTIMIZADO (UNA SOLA VEZ)
+        let html = "<h2>🔎 Resultados</h2>";
 
         data.results.forEach(r => {
 
@@ -109,14 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 filesHtml += "</ul>";
             }
 
-            let html = "<h2>🔎 Resultados</h2>";
-
-data.results.forEach(r => {
-    ...
-    html += `...`;
-});
-
-resultDiv.innerHTML = html;
+            html += `
                 <div class="result-item">
                     <a href="${r.url}" target="_blank">${r.title}</a>
                     <p>${r.url}</p>
@@ -125,9 +96,10 @@ resultDiv.innerHTML = html;
             `;
         });
 
+        resultDiv.innerHTML = html;
+
     } catch (error) {
         console.error(error);
         resultDiv.innerHTML = "❌ Error conectando con backend";
     }
 }
-});
