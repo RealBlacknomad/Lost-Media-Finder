@@ -9,7 +9,7 @@ CORS(app)
 def home():
     return "Backend funcionando 🚀"
 
-@app.route("/search", methods=["GET"])
+@app.route("/search")
 def search():
     query = request.args.get("q")
 
@@ -18,45 +18,41 @@ def search():
 
     results = []
 
+    # 🔥 FUENTE 1: DuckDuckGo
     try:
-        url = f"https://api.duckduckgo.com/?q={query}&format=json&no_html=1"
-        res = requests.get(url, timeout=5)
+        url = f"https://api.duckduckgo.com/?q={query}&format=json&no_redirect=1"
+        res = requests.get(url, timeout=3)
         data = res.json()
 
         for item in data.get("RelatedTopics", []):
-
             if isinstance(item, dict):
-
                 if "Text" in item and "FirstURL" in item:
                     results.append({
                         "title": item["Text"],
                         "url": item["FirstURL"]
                     })
-
-                if "Topics" in item:
-                    for sub in item["Topics"]:
-                        if "Text" in sub and "FirstURL" in sub:
-                            results.append({
-                                "title": sub["Text"],
-                                "url": sub["FirstURL"]
-                            })
-
     except Exception as e:
-        print("Error:", e)
+        print("DuckDuckGo falló:", e)
 
-    if not results:
-        results = [
-            {
-                "title": f"Buscar '{query}' en Archive.org",
-                "url": f"https://archive.org/search?query={query}"
-            },
-            {
-                "title": f"Buscar '{query}' en Reddit",
-                "url": f"https://www.reddit.com/search/?q={query}"
-            }
-        ]
+    # 🔥 SI NO HAY RESULTADOS → FORZAR RESULTADOS REALES
+    if len(results) < 3:
 
-    return jsonify({"results": results[:10]})
+        results.append({
+            "title": f"🔎 Buscar '{query}' (modo limpio)",
+            "url": f"https://www.google.com/search?q={query}+lost+media+-netflix+-amazon+-disney"
+        })
+
+        results.append({
+            "title": f"📚 Archive.org: {query}",
+            "url": f"https://archive.org/search?query={query}"
+        })
+
+        results.append({
+            "title": f"💬 Reddit: {query}",
+            "url": f"https://www.reddit.com/search/?q={query}"
+        })
+
+    return jsonify({"results": results})
 
 
 if __name__ == "__main__":
