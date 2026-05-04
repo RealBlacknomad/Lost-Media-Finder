@@ -1,18 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-    const btn = document.getElementById("searchBtn");
-    const input = document.getElementById("searchInput");
+    const form = document.getElementById("searchForm");
 
-    if (btn) {
-        btn.addEventListener("click", buscar);
-    }
-
-    // ENTER también busca
-    if (input) {
-        input.addEventListener("keypress", (e) => {
-            if (e.key === "Enter") {
-                buscar();
-            }
+    if (form) {
+        form.addEventListener("submit", (e) => {
+            e.preventDefault(); // 🚨 evita recarga
+            buscar();
         });
     }
 
@@ -72,7 +65,7 @@ function buscar() {
 
     const googleURL = `https://www.google.com/search?q=${encodeURIComponent(finalQuery)}`;
 
-    // output
+    // mostrar resultado
     resultDiv.innerHTML = `
         <h2>🔎 Resultados sugeridos</h2>
         <p><strong>Búsqueda generada:</strong></p>
