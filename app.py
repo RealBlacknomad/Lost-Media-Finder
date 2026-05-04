@@ -27,39 +27,78 @@ def get_google_links(query):
         if href and "/url?q=" in href:
             link = href.split("/url?q=")[1].split("&")[0]
 
-            if "google" not in link:
-                links.append(link)
+            if not link.startswith("http"):
+                continue
 
-    return links[:8]
+            if any(x in link for x in ["google", "youtube", "wikipedia"]):
+                continue
 
-# 📁 DETECTAR INDEX
+            links.append(link)
+
+    return links[:10]
+
+
+# 📁 DETECTAR INDEX (MEJORADO)
 def is_index_page(html):
     text = html.lower()
-    return "index of" in text and "parent directory" in text
+    return (
+        "index of" in text or
+        "directory listing" in text or
+        "<title>index of" in text
+    )
 
-# 🎬 EXTRAER ARCHIVOS
-def extract_files(html, base_url):
+
+# 🎬 CLASIFICAR ARCHIVOS
+def get_file_type(url):
+    url = url.lower()
+
+    if url.endswith((".mp4", ".mkv", ".avi", ".3gp")):
+        return "video"
+    if url.endswith((".mp3", ".wav")):
+        return "audio"
+    if url.endswith((".jpg", ".jpeg", ".png", ".gif")):
+        return "image"
+    if url.endswith((".zip", ".rar", ".7z")):
+        return "archive"
+
+    return "other"
+
+
+# 📦 EXTRAER ARCHIVOS Y CARPETAS
+def extract_content(html, base_url):
     soup = BeautifulSoup(html, "lxml")
-    files = []
 
-    extensions = [
+    files = []
+    folders = []
+
+    extensions = (
         ".mp4", ".mkv", ".avi", ".3gp",
         ".mp3", ".wav",
         ".jpg", ".jpeg", ".png", ".gif",
-        ".zip", ".rar"
-    ]
+        ".zip", ".rar", ".7z"
+    )
 
     for a in soup.find_all("a"):
         href = a.get("href")
+
         if not href:
             continue
 
         full_url = urllib.parse.urljoin(base_url, href)
 
-        if any(ext in href.lower() for ext in extensions):
-            files.append(full_url)
+        # 📁 carpetas
+        if href.endswith("/") and href != "../":
+            folders.append(full_url)
 
-    return files[:15]
+        # 🎬 archivos reales
+        elif href.lower().endswith(extensions):
+            files.append({
+                "url": full_url,
+                "type": get_file_type(full_url)
+            })
+
+    return folders[:10], files[:20]
+
 
 @app.route("/search")
 def search():
@@ -90,19 +129,25 @@ def search():
 
             for link in links:
                 try:
-                    res = requests.get(link, headers=HEADERS, timeout=5)
+                    res = requests.get(link, headers=HEADERS, timeout=8)
 
                     if is_index_page(res.text):
-                        files = extract_files(res.text, link)
+                        folders, files = extract_content(res.text, link)
 
                         real_results.append({
                             "title": "📁 Index encontrado",
                             "url": link,
+                            "folders": folders,
                             "files": files
                         })
 
+                        # 🔒 limitar resultados
+                        if len(real_results) >= 5:
+                            break
+
                 except:
                     continue
+
         except:
             continue
 
