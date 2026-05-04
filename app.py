@@ -24,10 +24,10 @@ def search():
 
     if search_type == "indexof":
         queries = [
-            f'intitle:"index of" "{query}" (mp4|avi|mkv|mp3|jpg|png|zip)',
+            f'intitle:"index of" {query}',
+            f'intitle:"index of" {query} (mp4 OR avi OR mkv OR mp3 OR zip)',
             f'intitle:"index of" {query} -html -htm -php',
-            f'"{query}" (mp4 OR avi OR mkv OR mp3 OR zip)',
-        ]
+    ]
 
     elif search_type == "blogs":
         queries = [
