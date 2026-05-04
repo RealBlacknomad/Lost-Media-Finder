@@ -1,54 +1,44 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("search-form");
-  const input = document.getElementById("search-input");
-  const resultsDiv = document.getElementById("results");
+async function searchMedia() {
+    const query = document.getElementById("searchInput").value;
+    const resultsDiv = document.getElementById("results");
 
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    resultsDiv.innerHTML = "<p>🔎 Buscando...</p>";
-
-    const query = input.value.trim();
-
-    if (!query) {
-      resultsDiv.innerHTML = "<p>Por favor escribe algo.</p>";
-      return;
-    }
+    resultsDiv.innerHTML = "Buscando...";
 
     try {
-      const response = await fetch(
-        `https://lost-media-finder.onrender.com/search?q=${encodeURIComponent(query)}`
-      );
+        const response = await fetch(`https://lost-media-finder.onrender.com/search?q=${query}`);
+        const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error("Servidor no responde");
-      }
+        console.log("DATA:", data);
 
-      const data = await response.json();
+        let results = data.results;
 
-      resultsDiv.innerHTML = "";
+        // 🔥 FIX IMPORTANTE
+        if (typeof results === "string") {
+            results = JSON.parse(results);
+        }
 
-      if (data.results && data.results.length > 0) {
-        data.results.forEach((item) => {
-          const div = document.createElement("div");
-          div.className = "result-item";
+        resultsDiv.innerHTML = "";
 
-          div.innerHTML = `
-            <h3><a href="${item.url}" target="_blank">${item.title}</a></h3>
-          `;
+        if (!results || results.length === 0) {
+            resultsDiv.innerHTML = "No se encontraron resultados 😢";
+            return;
+        }
 
-          resultsDiv.appendChild(div);
+        results.forEach(item => {
+            const div = document.createElement("div");
+            div.className = "result-item";
+
+            div.innerHTML = `
+                <a href="${item.url}" target="_blank">
+                    <h3>${item.title}</h3>
+                </a>
+            `;
+
+            resultsDiv.appendChild(div);
         });
-      } else {
-        resultsDiv.innerHTML = "<p>No se encontraron resultados.</p>";
-      }
 
     } catch (error) {
-      resultsDiv.innerHTML = `
-        <p>Error de conexión.</p>
-        <p style="color:gray;">Verifica que el backend esté activo.</p>
-      `;
-      console.error(error);
+        console.error("Error:", error);
+        resultsDiv.innerHTML = "Error al buscar 😢";
     }
-  });
-});
+}
