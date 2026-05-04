@@ -121,17 +121,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 🎯 BOTONES (FIX REAL)
     document.querySelectorAll(".search-actions button").forEach(btn => {
-        btn.addEventListener("click", () => {
+    btn.addEventListener("click", () => {
 
-            document.querySelectorAll(".search-actions button")
-                .forEach(b => b.classList.remove("active"));
+        currentType = btn.dataset.type;
 
-            btn.classList.add("active");
+        console.log("🚀 Búsqueda directa:", currentType);
 
-            currentType = btn.dataset.type;
-
-            console.log("🎬 Tipo seleccionado:", currentType);
-        });
+        // 🔥 DISPARAR BÚSQUEDA INMEDIATA
+        buscar();
     });
+});
 
 });
