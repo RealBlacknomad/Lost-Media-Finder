@@ -41,11 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (searchType === "movies") finalQuery += " pelicula";
         if (searchType === "series") finalQuery += " serie";
 
-        // 📁 INDEX OF (modo bruto)
-        if (searchType === "indexof") {
-            finalQuery = `intitle:index.of ${query}`;
-        }
-
+        
         // 📝 BLOGS
         if (searchType === "blogs") {
             finalQuery += " (blog OR wordpress OR blogspot)";
