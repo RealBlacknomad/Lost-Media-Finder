@@ -3,6 +3,9 @@ async function buscar() {
     const input = document.getElementById("searchInput");
     const resultDiv = document.getElementById("results");
 
+    const searchType =
+        document.querySelector(".search-type:checked")?.value || "all";
+
     const query = input.value.trim();
 
     if (!query) {
@@ -35,28 +38,29 @@ async function buscar() {
     try {
         const API_URL = "https://lost-media-finder.onrender.com/search";
 
-        const res = await fetch(
-            `${API_URL}?q=${encodeURIComponent(finalQuery)}&type=${searchType}&engines=${selectedEngines.join(",")}`
-        );
+        const url = `${API_URL}?q=${encodeURIComponent(finalQuery)}&type=${searchType}&engines=${selectedEngines.join(",")}`;
 
-        const text = await res.text();
+        console.log("🚀 Request:", url);
 
-        let data;
+        const res = await fetch(url);
 
-        try {
-            data = JSON.parse(text);
-        } catch (e) {
-            console.error("Respuesta no es JSON:", text);
-            resultDiv.innerHTML = "❌ Error del servidor";
+        // 🔥 VALIDAR RESPUESTA HTTP
+        if (!res.ok) {
+            const errorText = await res.text();
+            console.error("HTTP ERROR:", res.status, errorText);
+            resultDiv.innerHTML = `❌ Error ${res.status}`;
             return;
         }
+
+        // 🔥 PARSE DIRECTO (más seguro)
+        let data = await res.json();
 
         if (!data.results || data.results.length === 0) {
             resultDiv.innerHTML = "❌ Sin resultados";
             return;
         }
 
-        // ✅ RENDER OPTIMIZADO (UNA SOLA VEZ)
+        // ✅ RENDER OPTIMIZADO
         let html = "<h2>🔎 Resultados</h2>";
 
         data.results.forEach(r => {
@@ -99,7 +103,7 @@ async function buscar() {
         resultDiv.innerHTML = html;
 
     } catch (error) {
-        console.error(error);
+        console.error("ERROR GENERAL:", error);
         resultDiv.innerHTML = "❌ Error conectando con backend";
     }
 }
