@@ -1,93 +1,90 @@
-async function searchMedia() {
-    let query = document.getElementById("searchInput").value.trim();
+document.getElementById("searchBtn").addEventListener("click", buscar);
+
+function buscar() {
+    const query = document.getElementById("searchInput").value.trim();
     const resultsDiv = document.getElementById("results");
 
     if (!query) {
-        resultsDiv.innerHTML = "Escribe algo para buscar 👀";
+        resultsDiv.innerHTML = "<p>Escribe algo para buscar 👀</p>";
         return;
     }
 
-    resultsDiv.innerHTML = "Buscando...";
+    // Obtener filtros
+    const blogs = document.getElementById("blogs").checked;
+    const foros = document.getElementById("foros").checked;
+    const archivos = document.getElementById("archivos").checked;
+    const descargas = document.getElementById("descargas").checked;
+    const excluir = document.getElementById("excluir").checked;
+    const deepMode = document.getElementById("deepMode").checked;
 
-    // 🔍 Filtros
-    const blogsOnly = document.getElementById("blogsOnly").checked;
-    const forums = document.getElementById("forums").checked;
-    const archives = document.getElementById("archives").checked;
-    const oldWeb = document.getElementById("oldWeb").checked;
-    const downloads = document.getElementById("downloads").checked;
-    const excludeStreaming = document.getElementById("excludeStreaming").checked;
+    // 🔵 BASE (modo inteligente)
+    let baseQuery = `"${query}"`;
 
-    let filters = [];
+    // Añadir contexto inteligente (tipo Google)
+    baseQuery += " pelicula video animacion";
 
-    // 🧠 Construcción inteligente de filtros
-
-    if (blogsOnly) {
-        filters.push("(site:blogspot.com OR site:wordpress.com)");
+    // 🔴 MODO DEEP (lost media)
+    if (deepMode) {
+        baseQuery += " (archive OR lost media OR obscure OR rare)";
+        baseQuery += " (\"2000\" OR \"2005\" OR \"2010\")";
     }
 
-    if (forums) {
-        filters.push("(site:reddit.com OR inurl:forum OR site:4chan.org)");
+    // 🎯 Filtros (ahora con OR, no AND)
+    let filtros = [];
+
+    if (blogs) {
+        filtros.push("(site:blogspot.com OR site:wordpress.com)");
     }
 
-    if (archives) {
-        filters.push("(site:archive.org OR site:archive.is)");
+    if (foros) {
+        filtros.push("(site:reddit.com OR inurl:forum OR site:4chan.org)");
     }
 
-    if (oldWeb) {
-        filters.push('("guestbook" OR "last updated" OR "2003" OR "2005")');
+    if (archivos) {
+        filtros.push("(site:archive.org OR site:archive.is)");
     }
 
-    if (downloads) {
-        filters.push('("download avi" OR "dvdrip" OR "vhs rip" OR "megaupload")');
+    if (descargas) {
+        filtros.push("(\"download\" OR \"dvdrip\" OR \"vhs rip\" OR \"megaupload\")");
     }
 
-    if (excludeStreaming) {
-        filters.push("-netflix -amazon -prime -disney -hbo");
+    // 👉 IMPORTANTE: usar OR entre filtros
+    let filtrosQuery = "";
+    if (filtros.length > 0) {
+        filtrosQuery = "(" + filtros.join(" OR ") + ")";
     }
 
-    // 🔥 Construimos query final
-    let finalQuery = query;
-
-    if (filters.length > 0) {
-        finalQuery += " " + filters.join(" ");
+    // 🚫 Excluir plataformas comerciales
+    let excludeQuery = "";
+    if (excluir) {
+        excludeQuery = "-netflix -amazon -prime -disney -hbo";
     }
 
-    console.log("QUERY FINAL:", finalQuery);
+    // 🧩 QUERY FINAL
+    const finalQuery = `${baseQuery} ${filtrosQuery} ${excludeQuery}`;
 
-    try {
-        const response = await fetch(`https://lost-media-finder.onrender.com/search?q=${encodeURIComponent(finalQuery)}`);
-        const data = await response.json();
+    // 🔗 LINKS LIMPIOS (NO mostramos la query)
+    const googleURL = `https://www.google.com/search?q=${encodeURIComponent(finalQuery)}`;
+    const redditURL = `https://www.google.com/search?q=${encodeURIComponent(finalQuery + " site:reddit.com")}`;
+    const archiveURL = `https://www.google.com/search?q=${encodeURIComponent(finalQuery + " site:archive.org")}`;
 
-        let results = data.results;
+    // 🎨 OUTPUT LIMPIO
+    resultsDiv.innerHTML = `
+        <h2>🔎 Resultados sugeridos</h2>
 
-        // 🔥 FIX por si viene como string
-        if (typeof results === "string") {
-            results = JSON.parse(results);
-        }
+        <div class="result-item">
+            <a href="${googleURL}" target="_blank">🌐 Buscar en Google</a>
+            <p>Búsqueda general inteligente</p>
+        </div>
 
-        resultsDiv.innerHTML = "";
+        <div class="result-item">
+            <a href="${redditURL}" target="_blank">💬 Buscar en foros / Reddit</a>
+            <p>Discusiones y pistas de usuarios</p>
+        </div>
 
-        if (!results || results.length === 0) {
-            resultsDiv.innerHTML = "No se encontraron resultados 😢";
-            return;
-        }
-
-        results.forEach(item => {
-            const div = document.createElement("div");
-            div.className = "result-item";
-
-            div.innerHTML = `
-                <a href="${item.url}" target="_blank">
-                    <h3>${item.title}</h3>
-                </a>
-                <p>${item.url}</p>
-            `;
-
-            resultsDiv.appendChild(div);
-        });
-
-    } catch (error) {
-        console.error("Error:", error);
-        resultsDiv.innerHTML = "Error al buscar 😢";
-    }
+        <div class="result-item">
+            <a href="${archiveURL}" target="_blank">📦 Buscar en Archive</a>
+            <p>Contenido antiguo y perdido</p>
+        </div>
+    `;
 }
