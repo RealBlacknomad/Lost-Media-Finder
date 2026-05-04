@@ -1,21 +1,11 @@
-.results-box {
-  margin-top: 20px;
-}
-
 .result-item {
-  margin-bottom: 30px;
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
+  background: #111;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  transition: transform 0.2s;
 }
 
-.result-item img {
-  display: block;
-  margin-bottom: 10px;
-}
-
-body {
-  font-family: Arial, sans-serif;
-  max-width: 800px;
-  margin: auto;
-  padding: 20px;
+.result-item:hover {
+  transform: scale(1.02);
 }
