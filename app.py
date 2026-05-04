@@ -73,11 +73,25 @@ def extract_files_from_page(url):
 def search():
     query = request.args.get("q")
     search_type = request.args.get("type", "all")
-
+engines = request.args.get("engines", "google").split(",")
     if not query:
         return jsonify({"results": []})
 
     results = []
+
+for engine in engines:
+
+    if engine == "google":
+        results += search_google(q)
+
+    elif engine == "duckduckgo":
+        results += search_duckduckgo(q)
+
+    elif engine == "yandex":
+        results += search_yandex(q)
+
+    elif engine == "bing":
+        results += search_bing(q)
     queries = []
 
     # 🎯 MODOS
