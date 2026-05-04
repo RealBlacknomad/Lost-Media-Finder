@@ -15,25 +15,32 @@
                 <button type="submit">Buscar</button>
             </div>
 
+            <!-- 🔥 MODOS DE BÚSQUEDA -->
             <div class="search-actions">
-                <button type="button" data-type="movies">Películas</button>
-                <button type="button" data-type="series">Series</button>
+                <button type="button" data-type="all" class="active">🌐 Todo</button>
+                <button type="button" data-type="movies">🎬 Películas</button>
+                <button type="button" data-type="series">📺 Series</button>
+                <button type="button" data-type="indexof">📁 Index Of</button>
+                <button type="button" data-type="blogs">📝 Blogs</button>
             </div>
 
         </form>
 
+        <!-- 🔥 FILTROS AVANZADOS -->
         <div class="filters">
-            <label><input type="checkbox" id="deepMode"> Modo profundo</label>
-            <label><input type="checkbox" id="blogsOnly"> Blogs</label>
-            <label><input type="checkbox" id="forums"> Foros</label>
-            <label><input type="checkbox" id="archives"> Archivos</label>
-            <label><input type="checkbox" id="oldWeb"> Webs antiguas</label>
-            <label><input type="checkbox" id="downloads"> Descargas</label>
-            <label><input type="checkbox" id="excludeStreaming" checked> Excluir plataformas</label>
+            <label><input type="checkbox" id="deepMode"> 🔎 Modo profundo</label>
+            <label><input type="checkbox" id="blogsOnly"> 📝 Blogs</label>
+            <label><input type="checkbox" id="forums"> 💬 Foros</label>
+            <label><input type="checkbox" id="archives"> 📚 Archivos</label>
+            <label><input type="checkbox" id="oldWeb"> 🌐 Webs antiguas</label>
+            <label><input type="checkbox" id="downloads"> ⬇️ Descargas</label>
+            <label><input type="checkbox" id="excludeStreaming" checked> 🚫 Excluir plataformas</label>
         </div>
 
+        <!-- RESULTADOS -->
         <div id="results"></div>
 
     </div>
+
     <script src="script.js"></script>
 </body>
