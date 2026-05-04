@@ -52,7 +52,7 @@ async function buscar() {
             return;
         }
 
-        // 🔥 PARSE DIRECTO (más seguro)
+        // 🔥 PARSE DIRECTO
         let data = await res.json();
 
         if (!data.results || data.results.length === 0) {
@@ -60,7 +60,7 @@ async function buscar() {
             return;
         }
 
-        // ✅ RENDER OPTIMIZADO
+        // ✅ RENDER
         let html = "<h2>🔎 Resultados</h2>";
 
         data.results.forEach(r => {
@@ -107,3 +107,14 @@ async function buscar() {
         resultDiv.innerHTML = "❌ Error conectando con backend";
     }
 }
+
+
+// 🚀 CONECTAR FORMULARIO (CLAVE)
+document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("searchForm");
+
+    form.addEventListener("submit", function(e) {
+        e.preventDefault();
+        buscar();
+    });
+});
