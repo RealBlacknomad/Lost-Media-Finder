@@ -19,55 +19,39 @@ def search():
 
     results = []
 
-    # 🧠 MODIFICAR QUERY SEGÚN MODO
-    final_query = query
+    # 💀 MODO DIOS: múltiples estrategias
+    queries = []
 
     if search_type == "indexof":
-        final_query = f'intitle:"index of" {query} (mp4|avi|mkv|mp3|jpg|png|zip)'
+        queries = [
+            f'intitle:"index of" "{query}" (mp4|avi|mkv|mp3|jpg|png|zip)',
+            f'intitle:"index of" {query} -html -htm -php',
+            f'"{query}" (mp4 OR avi OR mkv OR mp3 OR zip)',
+        ]
 
     elif search_type == "blogs":
-        final_query = f'{query} (site:blogspot.com OR site:wordpress.com)'
+        queries = [
+            f'{query} site:blogspot.com',
+            f'{query} site:wordpress.com',
+        ]
 
     elif search_type == "movies":
-        final_query = f'{query} pelicula lost media'
+        queries = [f'{query} pelicula lost media']
 
     elif search_type == "series":
-        final_query = f'{query} serie lost media'
+        queries = [f'{query} serie lost media']
 
     else:
-        final_query = f'{query} lost media -netflix -amazon -disney'
+        queries = [f'{query} lost media -netflix -amazon -disney']
 
-    # 🔥 DuckDuckGo SOLO modo normal
-    if search_type == "all":
-        try:
-            url = f"https://api.duckduckgo.com/?q={final_query}&format=json&no_redirect=1"
-            res = requests.get(url, timeout=3)
-            data = res.json()
-
-            for item in data.get("RelatedTopics", []):
-                if isinstance(item, dict):
-                    if "Text" in item and "FirstURL" in item:
-                        results.append({
-                            "title": item["Text"],
-                            "url": item["FirstURL"]
-                        })
-        except Exception as e:
-            print("DuckDuckGo falló:", e)
-
-    # 🔥 SIEMPRE añadir búsqueda Google optimizada
-    results.append({
-        "title": f"🔎 Google: {final_query}",
-        "url": f"https://www.google.com/search?q={final_query}"
-    })
-
-    # 📁 EXTRA POTENTE PARA INDEX OF
-    if search_type == "indexof":
+    # 🔥 Generar resultados Google para cada estrategia
+    for q in queries:
         results.append({
-            "title": f"📁 Index Of directo (alternativo)",
-            "url": f"https://www.google.com/search?q=intitle:index.of+{query}"
+            "title": f"🔎 {q}",
+            "url": f"https://www.google.com/search?q={q}"
         })
 
-    # 🔥 FUENTES CLAVE
+    # 🔥 EXTRA: Archive y Reddit siempre
     results.append({
         "title": f"📚 Archive.org: {query}",
         "url": f"https://archive.org/search?query={query}"
