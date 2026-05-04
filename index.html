@@ -6,64 +6,68 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<form id="searchForm">
-    <input type="text" id="searchInput" placeholder="Buscar lost media...">
-    <button id="searchBtn">Buscar</button>
-</form>
-    <div class="container">
 
-        <h1>🔍 Lost Media Finder</h1>
+<div class="container">
 
-        <div class="search-box">
-            <input type="text" id="searchInput" placeholder="Buscar lost media...">
-            <button id="searchBtn">Buscar</button>
-        </div>
+    <h1>🔍 Lost Media Finder</h1>
 
-        <div class="filters">
+    <form id="searchForm" class="search-box">
+        <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="Ej: película de cacahuetes stop motion..."
+            autocomplete="off"
+        >
+        <button type="submit">Buscar</button>
+    </form>
 
-            <h3>🎯 Filtros de búsqueda</h3>
-            <label>
-              <input type="checkbox" id="deepMode">
-                  Modo Lost Media (búsqueda profunda)
-            </label>
-            
-            <label>
-                <input type="checkbox" id="blogsOnly">
-                Blogs / WordPress / Blogspot
-            </label>
+    <div class="filters">
 
-            <label>
-                <input type="checkbox" id="forums">
-                Foros / Reddit / comunidades
-            </label>
+        <h3>🎯 Filtros de búsqueda</h3>
 
-            <label>
-                <input type="checkbox" id="archives">
-                Archivos digitales (Archive.org)
-            </label>
+        <label>
+            <input type="checkbox" id="deepMode">
+            Modo Lost Media (búsqueda profunda)
+        </label>
 
-            <label>
-                <input type="checkbox" id="oldWeb">
-                Webs antiguas / abandonadas
-            </label>
+        <label>
+            <input type="checkbox" id="blogsOnly">
+            Blogs / WordPress / Blogspot
+        </label>
 
-            <label>
-                <input type="checkbox" id="downloads">
-                Descargas directas (AVI, VHS, DVDRip)
-            </label>
+        <label>
+            <input type="checkbox" id="forums">
+            Foros / Reddit / comunidades
+        </label>
 
-            <label>
-                <input type="checkbox" id="excludeStreaming">
-                Excluir plataformas comerciales (Netflix, Prime, etc.)
-            </label>
+        <label>
+            <input type="checkbox" id="archives">
+            Archivos digitales (Archive.org)
+        </label>
 
-        </div>
+        <label>
+            <input type="checkbox" id="oldWeb">
+            Webs antiguas / abandonadas
+        </label>
 
-        <div id="results"></div>
+        <label>
+            <input type="checkbox" id="downloads">
+            Descargas directas (AVI, VHS, DVDRip)
+        </label>
+
+        <label>
+            <input type="checkbox" id="excludeStreaming">
+            Excluir plataformas comerciales
+        </label>
 
     </div>
 
-    <script src="script.js"></script>
+    <div id="results">
+        <p class="hint">🔎 Escribe algo y prueba los filtros</p>
+    </div>
 
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
