@@ -1,18 +1,21 @@
+.results-box {
+  margin-top: 20px;
+}
+
 .result-item {
-  margin-bottom: 20px;
+  margin-bottom: 30px;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.result-item img {
+  display: block;
+  margin-bottom: 10px;
+}
+
+body {
   font-family: Arial, sans-serif;
-}
-
-.result-item h2 a, .result-item h3 a {
-  color: #1a0dab;
-  text-decoration: none;
-}
-
-.result-item h2 a:hover, .result-item h3 a:hover {
-  text-decoration: underline;
-}
-
-.result-item p {
-  color: #4d5156;
-  font-size: 14px;
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
 }
