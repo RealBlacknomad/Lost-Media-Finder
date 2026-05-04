@@ -5,17 +5,22 @@ import requests
 app = Flask(__name__)
 CORS(app)
 
+# 🔹 Ruta base
 @app.route("/")
 def home():
     return "Backend funcionando 🚀"
 
+# 🔹 Ruta de búsqueda
 @app.route("/search")
 def search():
     query = request.args.get("q")
 
+    if not query:
+        return jsonify({"results": []})
+
     results = []
 
-    # 🔹 intento DuckDuckGo
+    # 🔸 Intento con DuckDuckGo
     try:
         url = f"https://api.duckduckgo.com/?q={query}&format=json"
         res = requests.get(url, timeout=3)
@@ -29,10 +34,10 @@ def search():
                             "title": item["Text"],
                             "url": item["FirstURL"]
                         })
-    except:
-        print("DuckDuckGo falló")
+    except Exception as e:
+        print("DuckDuckGo falló:", e)
 
-    # 🔹 fallback (SIEMPRE FUNCIONA)
+    # 🔸 Fallback SIEMPRE (esto evita pantalla vacía)
     if not results:
         results.append({
             "title": f"Buscar '{query}' en Archive.org",
@@ -45,22 +50,12 @@ def search():
         })
 
         results.append({
-            "title": f"Buscar '{query}' en Google (filtrado)",
+            "title": f"Buscar '{query}' en Google (lost media)",
             "url": f"https://www.google.com/search?q={query}+lost+media"
         })
 
     return jsonify({"results": results})
 
-        return jsonify({"results": results})
-
-    except Exception as e:
-        print("ERROR:", e)
-        return jsonify({
-            "results": [],
-            "error": "Error al obtener datos externos"
-        })
-
-    return jsonify({"results": results})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
