@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const input = document.getElementById("search-input");
   const resultsDiv = document.getElementById("results");
 
+  // 🚫 sitios bloqueados
   const blockedSites = [
     "netflix.com",
     "amazon.com",
@@ -15,64 +16,82 @@ document.addEventListener("DOMContentLoaded", () => {
     return blockedSites.some(site => url.includes(site));
   }
 
+  // 🧠 búsqueda con fallback
+  async function fetchResults(query) {
+    const urls = [
+      `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&origin=*`,
+      `https://api.allorigins.win/raw?url=https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json`
+    ];
+
+    for (let url of urls) {
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        return data;
+      } catch (e) {
+        console.log("Intento fallido:", url);
+      }
+    }
+
+    return null;
+  }
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    resultsDiv.innerHTML = "<p>Buscando en la web profunda...</p>";
+    resultsDiv.innerHTML = "<p>🔎 Buscando en lo profundo de internet...</p>";
 
     let query = input.value.trim();
     if (!query) {
-      resultsDiv.innerHTML = "<p>Escribe algo.</p>";
+      resultsDiv.innerHTML = "<p>Escribe algo primero.</p>";
       return;
     }
 
-    query += " lost media obscure archive";
+    // 🔥 optimización de búsqueda
+    query += " lost media obscure archive forum";
 
-    try {
-      const response = await fetch(
-        `https://corsproxy.io/?https://duckduckgo.com/html/?q=${encodeURIComponent(query)}`
-      );
+    const data = await fetchResults(query);
 
-      const html = await response.text();
+    if (!data) {
+      resultsDiv.innerHTML = `
+        <p>Error de conexión.</p>
+        <p style="color:gray;">Intenta otra vez en unos segundos.</p>
+      `;
+      return;
+    }
 
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, "text/html");
+    let results = [];
 
-      const links = doc.querySelectorAll(".result__a");
-
-      resultsDiv.innerHTML = "";
-
-      let count = 0;
-
-      links.forEach(link => {
-        const url = link.href;
-        const title = link.textContent;
-
-        if (!isBlocked(url) && count < 10) {
-          const div = document.createElement("div");
-          div.className = "result-item";
-
-          const image = `https://source.unsplash.com/300x200/?${encodeURIComponent(input.value)}`;
-
-          div.innerHTML = `
-            <img src="${image}" style="width:300px; height:200px; object-fit:cover;">
-            <h3><a href="${url}" target="_blank">${title}</a></h3>
-          `;
-
-          resultsDiv.appendChild(div);
-          count++;
+    if (data.RelatedTopics) {
+      data.RelatedTopics.forEach(item => {
+        if (item.Text && item.FirstURL && !isBlocked(item.FirstURL)) {
+          results.push({
+            title: item.Text,
+            url: item.FirstURL
+          });
         }
       });
+    }
 
-      if (count === 0) {
-        resultsDiv.innerHTML = "<p>No se encontraron resultados útiles.</p>";
-      }
+    resultsDiv.innerHTML = "";
 
-    } catch (error) {
-  resultsDiv.innerHTML = `
-    <p>Error al buscar.</p>
-    <p style="color:gray;">(Puede ser el proxy, intenta otra vez)</p>
-  `;
-}
+    if (results.length === 0) {
+      resultsDiv.innerHTML = "<p>No se encontraron resultados interesantes.</p>";
+      return;
+    }
+
+    results.slice(0, 10).forEach(item => {
+      const div = document.createElement("div");
+      div.className = "result-item";
+
+      const image = `https://source.unsplash.com/300x200/?${encodeURIComponent(input.value)}`;
+
+      div.innerHTML = `
+        <img src="${image}">
+        <h3><a href="${item.url}" target="_blank">${item.title}</a></h3>
+      `;
+
+      resultsDiv.appendChild(div);
+    });
   });
 });
