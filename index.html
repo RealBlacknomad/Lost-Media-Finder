@@ -1,80 +1,38 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Lost Media Finder</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
 <body>
+    <div class="container">
 
-<div class="container">
+        <h1>🔎 Lost Media Finder</h1>
 
-    <h1>🔍 Lost Media Finder</h1>
+        <form id="searchForm" class="search-box">
 
-<form id="searchForm" class="search-box">
+            <div class="search-bar">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    placeholder="Search lost media..."
+                    autocomplete="off"
+                >
+                <button type="submit">Buscar</button>
+            </div>
 
-    <input 
-        type="text" 
-        id="searchInput" 
-        placeholder="Ej: zombies, animación rara..."
-        autocomplete="off"
-    >
+            <div class="search-actions">
+                <button type="button" data-type="movies">Películas</button>
+                <button type="button" data-type="series">Series</button>
+            </div>
 
-    <div class="search-actions">
-        <button type="submit" data-type="all">Buscar</button>
-        <button type="button" data-type="movies">Películas</button>
-        <button type="button" data-type="series">Series</button>
-    </div>
+        </form>
 
-</form>
+        <div class="filters">
+            <label><input type="checkbox" id="deepMode"> Modo profundo</label>
+            <label><input type="checkbox" id="blogsOnly"> Blogs</label>
+            <label><input type="checkbox" id="forums"> Foros</label>
+            <label><input type="checkbox" id="archives"> Archivos</label>
+            <label><input type="checkbox" id="oldWeb"> Webs antiguas</label>
+            <label><input type="checkbox" id="downloads"> Descargas</label>
+            <label><input type="checkbox" id="excludeStreaming" checked> Excluir plataformas</label>
+        </div>
 
-    <div class="filters">
-
-        <h3>🎯 Filtros de búsqueda</h3>
-
-        <label>
-            <input type="checkbox" id="deepMode">
-            Modo Lost Media (búsqueda profunda)
-        </label>
-
-        <label>
-            <input type="checkbox" id="blogsOnly">
-            Blogs / WordPress / Blogspot
-        </label>
-
-        <label>
-            <input type="checkbox" id="forums">
-            Foros / Reddit / comunidades
-        </label>
-
-        <label>
-            <input type="checkbox" id="archives">
-            Archivos digitales (Archive.org)
-        </label>
-
-        <label>
-            <input type="checkbox" id="oldWeb">
-            Webs antiguas / abandonadas
-        </label>
-
-        <label>
-            <input type="checkbox" id="downloads">
-            Descargas directas (AVI, VHS, DVDRip)
-        </label>
-
-        <label>
-            <input type="checkbox" id="excludeStreaming" checked>
-            Excluir plataformas comerciales
-        </label>
+        <div id="results"></div>
 
     </div>
-
-    <div id="results">
-        <p class="hint">🔎 Escribe algo y prueba los filtros</p>
-    </div>
-
-</div>
-
-<script src="script.js"></script>
 </body>
-</html>
