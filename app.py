@@ -13,17 +13,13 @@ def home():
 def search():
     query = request.args.get("q")
 
-    if not query:
-        return jsonify({"results": []})
+    results = []
 
+    # 🔹 intento DuckDuckGo
     try:
         url = f"https://api.duckduckgo.com/?q={query}&format=json"
-
-        # 🔥 AQUÍ ESTÁ LA CLAVE
-        res = requests.get(url, timeout=5)
-
+        res = requests.get(url, timeout=3)
         data = res.json()
-        results = []
 
         if "RelatedTopics" in data:
             for item in data["RelatedTopics"]:
@@ -33,6 +29,27 @@ def search():
                             "title": item["Text"],
                             "url": item["FirstURL"]
                         })
+    except:
+        print("DuckDuckGo falló")
+
+    # 🔹 fallback (SIEMPRE FUNCIONA)
+    if not results:
+        results.append({
+            "title": f"Buscar '{query}' en Archive.org",
+            "url": f"https://archive.org/search?query={query}"
+        })
+
+        results.append({
+            "title": f"Buscar '{query}' en Reddit",
+            "url": f"https://www.reddit.com/search/?q={query}"
+        })
+
+        results.append({
+            "title": f"Buscar '{query}' en Google (filtrado)",
+            "url": f"https://www.google.com/search?q={query}+lost+media"
+        })
+
+    return jsonify({"results": results})
 
         return jsonify({"results": results})
 
