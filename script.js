@@ -1,10 +1,13 @@
+// 🎯 estado global del tipo
+let currentType = "all";
+
 async function buscar() {
 
     const input = document.getElementById("searchInput");
     const resultDiv = document.getElementById("results");
 
-    const searchType =
-        document.querySelector(".search-type:checked")?.value || "all";
+    // ✅ USAR VARIABLE GLOBAL (FIX)
+    const searchType = currentType;
 
     const query = input.value.trim();
 
@@ -44,7 +47,6 @@ async function buscar() {
 
         const res = await fetch(url);
 
-        // 🔥 VALIDAR RESPUESTA HTTP
         if (!res.ok) {
             const errorText = await res.text();
             console.error("HTTP ERROR:", res.status, errorText);
@@ -52,7 +54,6 @@ async function buscar() {
             return;
         }
 
-        // 🔥 PARSE DIRECTO
         let data = await res.json();
 
         if (!data.results || data.results.length === 0) {
@@ -60,7 +61,6 @@ async function buscar() {
             return;
         }
 
-        // ✅ RENDER
         let html = "<h2>🔎 Resultados</h2>";
 
         data.results.forEach(r => {
@@ -109,12 +109,29 @@ async function buscar() {
 }
 
 
-// 🚀 CONECTAR FORMULARIO (CLAVE)
+// 🚀 INICIALIZACIÓN SEGURA
 document.addEventListener("DOMContentLoaded", () => {
-    const form = document.getElementById("searchForm");
 
+    // 🔘 FORM SUBMIT
+    const form = document.getElementById("searchForm");
     form.addEventListener("submit", function(e) {
         e.preventDefault();
         buscar();
     });
+
+    // 🎯 BOTONES (FIX REAL)
+    document.querySelectorAll(".search-actions button").forEach(btn => {
+        btn.addEventListener("click", () => {
+
+            document.querySelectorAll(".search-actions button")
+                .forEach(b => b.classList.remove("active"));
+
+            btn.classList.add("active");
+
+            currentType = btn.dataset.type;
+
+            console.log("🎬 Tipo seleccionado:", currentType);
+        });
+    });
+
 });
