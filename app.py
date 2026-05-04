@@ -1,15 +1,21 @@
-from bs4 import BeautifulSoup
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
 import urllib.parse
+from bs4 import BeautifulSoup
 
 app = Flask(__name__)
 CORS(app)
 
+HEADERS = {"User-Agent": "Mozilla/5.0"}
+
+
 @app.route("/")
 def home():
     return "Backend funcionando 🚀"
+
+
+# 🎬 DETECTAR TIPO DE ARCHIVO
 def get_file_type(url):
     url = url.lower()
 
@@ -25,9 +31,15 @@ def get_file_type(url):
     return "other"
 
 
+# 📦 EXTRAER ARCHIVOS DE UNA PÁGINA
 def extract_files_from_page(url):
     try:
-        res = requests.get(url, timeout=5)
+        res = requests.get(url, headers=HEADERS, timeout=5)
+
+        # 🔒 evitar HTML raro o bloqueos
+        if "text/html" not in res.headers.get("Content-Type", ""):
+            return []
+
         soup = BeautifulSoup(res.text, "lxml")
 
         files = []
@@ -41,7 +53,10 @@ def extract_files_from_page(url):
             full_url = urllib.parse.urljoin(url, href)
 
             if any(full_url.lower().endswith(ext) for ext in [
-                ".mp4", ".mkv", ".avi", ".mp3", ".zip", ".jpg", ".png"
+                ".mp4", ".mkv", ".avi",
+                ".mp3",
+                ".zip", ".rar", ".7z",
+                ".jpg", ".png"
             ]):
                 files.append({
                     "url": full_url,
@@ -52,6 +67,8 @@ def extract_files_from_page(url):
 
     except:
         return []
+
+
 @app.route("/search")
 def search():
     query = request.args.get("q")
@@ -63,50 +80,33 @@ def search():
     results = []
     queries = []
 
-    # 💀 MODO DIOS BIEN HECHO
-    if search_type == "indexof":
-        queries = [
-            f'intitle:"index of" {query}',
-            f'intitle:"index of" {query} "parent directory"',
-            f'intitle:"index of" {query} (mp4 OR avi OR mkv)',
-            f'intitle:"index of" {query} (mp3 OR zip OR rar)',
-            f'intitle:"index of" {query} -html -htm -php -asp',
-        ]
-
-    elif search_type == "blogs":
-        queries = [
-            f'{query} site:blogspot.com',
-            f'{query} site:wordpress.com',
-            f'{query} "posted by"',
-        ]
-
-    elif search_type == "movies":
-        queries = [
-            f'{query} pelicula lost media',
-            f'{query} full movie rare',
-        ]
-
+    # 🎯 MODOS
+    if search_type == "movies":
+        queries = [f"{query} pelicula"]
     elif search_type == "series":
-        queries = [
-            f'{query} serie lost media',
-            f'{query} full episodes rare',
-        ]
-
+        queries = [f"{query} serie"]
+    elif search_type == "blogs":
+        queries = [f"{query} blog OR wordpress OR blogspot"]
+    elif search_type == "indexof":
+        queries = [f'intitle:"index of" {query}']
     else:
-        queries = [
-            f'{query} lost media -netflix -amazon -disney',
-        ]
+        queries = [query]
 
-    # 🔥 GENERAR LINKS LIMPIOS (IMPORTANTE: encode)
+    # 🔎 RESULTADOS BASE (sin romper nada)
     for q in queries:
         encoded_q = urllib.parse.quote(q)
+        google_url = f"https://www.google.com/search?q={encoded_q}"
+
+        # 🔥 EXTRA: intentar detectar archivos (NO rompe si falla)
+        files = extract_files_from_page(google_url)
 
         results.append({
             "title": f"🔎 {q}",
-            "url": f"https://www.google.com/search?q={encoded_q}"
+            "url": google_url,
+            "files": files
         })
 
-    # 🔥 EXTRA SIEMPRE
+    # 📚 extras (igual que tu versión original)
     results.append({
         "title": f"📚 Archive.org: {query}",
         "url": f"https://archive.org/search?query={urllib.parse.quote(query)}"
@@ -117,7 +117,9 @@ def search():
         "url": f"https://www.reddit.com/search/?q={urllib.parse.quote(query)}"
     })
 
-    return jsonify({"results": results})
+    return jsonify({
+        "results": results
+    })
 
 
 if __name__ == "__main__":
