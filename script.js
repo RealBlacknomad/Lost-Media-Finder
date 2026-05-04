@@ -46,14 +46,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let finalQuery = query;
 
-    // 🎬 TIPOS
-    if (searchType === "movies") finalQuery += " pelicula";
-    if (searchType === "series") finalQuery += " serie";
-
-    if (searchType === "blogs") {
-        finalQuery += " (blog OR wordpress OR blogspot)";
-    }
-
     // 🔎 FILTROS
     if (document.getElementById("deepMode")?.checked) {
         finalQuery += " (lost media OR rare OR obscure)";
@@ -117,7 +109,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 filesHtml += "</ul>";
             }
 
-            resultDiv.innerHTML += `
+            let html = "<h2>🔎 Resultados</h2>";
+
+data.results.forEach(r => {
+    ...
+    html += `...`;
+});
+
+resultDiv.innerHTML = html;
                 <div class="result-item">
                     <a href="${r.url}" target="_blank">${r.title}</a>
                     <p>${r.url}</p>
