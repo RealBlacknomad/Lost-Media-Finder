@@ -1,28 +1,18 @@
-#results {
-  max-width: 700px;
-  margin: 20px auto;
+.result-item {
+  margin-bottom: 20px;
   font-family: Arial, sans-serif;
 }
 
-.result-item {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-}
-
-.result-item h2 {
-  font-size: 20px;
-  margin: 0 0 5px;
-  color: #1a0dab;
-}
-
-.result-item h3 a {
-  font-size: 16px;
+.result-item h2 a, .result-item h3 a {
   color: #1a0dab;
   text-decoration: none;
 }
 
+.result-item h2 a:hover, .result-item h3 a:hover {
+  text-decoration: underline;
+}
+
 .result-item p {
-  font-size: 14px;
   color: #4d5156;
-  margin: 0;
+  font-size: 14px;
 }
