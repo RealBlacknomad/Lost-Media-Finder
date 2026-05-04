@@ -3,105 +3,73 @@ document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("searchForm");
     const buttons = document.querySelectorAll(".search-actions button");
 
-    let searchType = "all"; // default
+    let searchType = "all";
 
     buttons.forEach(btn => {
         btn.addEventListener("click", () => {
-            searchType = btn.dataset.type;
 
-            if (searchType !== "all") {
-                buscar();
-            }
+            buttons.forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+
+            searchType = btn.dataset.type;
+            buscar();
         });
     });
 
-    if (form) {
-        form.addEventListener("submit", (e) => {
-            e.preventDefault();
-            buscar();
-        });
-    }
+    form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        buscar();
+    });
 
-    function buscar() {
+    async function buscar() {
 
         const input = document.getElementById("searchInput");
         const resultDiv = document.getElementById("results");
 
-        if (!input || !resultDiv) return;
-
         const query = input.value.trim();
 
         if (!query) {
-            resultDiv.innerHTML = "<p>⚠️ Escribe algo para buscar</p>";
+            resultDiv.innerHTML = "⚠️ Escribe algo";
             return;
         }
 
-        const getChecked = (id) => {
-            const el = document.getElementById(id);
-            return el ? el.checked : false;
-        };
+        resultDiv.innerHTML = "⏳ Buscando (puede tardar si Render está dormido)...";
 
-        const blogs = getChecked("blogsOnly");
-        const foros = getChecked("forums");
-        const archivos = getChecked("archives");
-        const oldWeb = getChecked("oldWeb");
-        const descargas = getChecked("downloads");
-        const excluir = getChecked("excludeStreaming");
-        const deepMode = getChecked("deepMode");
+        let finalQuery = query;
 
-        // 🎯 BASE QUERY LIMPIA
-        let baseQuery = query;
+        if (searchType === "movies") finalQuery += " pelicula";
+        if (searchType === "series") finalQuery += " serie";
 
-        // 🎬 MODOS
-        if (searchType === "movies") {
-            baseQuery += " pelicula";
+        if (document.getElementById("deepMode").checked) {
+            finalQuery += " (lost media OR rare OR obscure)";
         }
 
-        if (searchType === "series") {
-            baseQuery += " serie";
+        try {
+            const res = await fetch(
+                `https://lost-media-finder.onrender.com/search?q=${encodeURIComponent(finalQuery)}`
+            );
+
+            const data = await res.json();
+
+            if (!data.results || data.results.length === 0) {
+                resultDiv.innerHTML = "❌ Sin resultados";
+                return;
+            }
+
+            resultDiv.innerHTML = "<h2>🔎 Resultados</h2>";
+
+            data.results.forEach(r => {
+                resultDiv.innerHTML += `
+                    <div class="result-item">
+                        <a href="${r.url}" target="_blank">${r.title}</a>
+                        <p>${r.url}</p>
+                    </div>
+                `;
+            });
+
+        } catch (error) {
+            console.error(error);
+            resultDiv.innerHTML = "❌ Error conectando con backend";
         }
-
-        // 🔍 MODO DEEP
-        if (deepMode) {
-            baseQuery += " (archive OR lost media OR rare OR obscure)";
-            baseQuery += " (\"2000s\" OR \"90s\" OR \"2010\")";
-        }
-
-        // filtros
-        let filtros = [];
-
-        if (blogs) filtros.push("(site:blogspot.com OR site:wordpress.com)");
-        if (foros) filtros.push("(site:reddit.com OR inurl:forum OR site:4chan.org)");
-        if (archivos) filtros.push("(site:archive.org OR site:archive.is)");
-        if (oldWeb) filtros.push("(\"last updated\" OR \"guestbook\" OR \"old website\")");
-        if (descargas) filtros.push("(download OR dvdrip OR \"vhs rip\" OR megaupload)");
-
-        let filtrosQuery = filtros.length ? `(${filtros.join(" OR ")})` : "";
-
-        let excluirQuery = excluir ? "-netflix -amazon -prime -disney -hbo" : "";
-
-        const finalQuery = `${baseQuery} ${filtrosQuery} ${excluirQuery}`;
-
-        const googleURL = `https://www.google.com/search?q=${encodeURIComponent(finalQuery)}`;
-
-        resultDiv.innerHTML = `
-            <h2>🔎 Resultados sugeridos</h2>
-            <p><strong>Modo:</strong> ${searchType}</p>
-            <p>${finalQuery}</p>
-            <br>
-            <a href="${googleURL}" target="_blank">👉 Buscar en Google</a>
-        `;
     }
-buttons.forEach(btn => {
-    btn.addEventListener("click", () => {
-
-        buttons.forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-
-        searchType = btn.dataset.type;
-
-        if (searchType !== "all") {
-            buscar();
-        }
-    });
 });
